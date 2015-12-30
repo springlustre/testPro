@@ -16,7 +16,7 @@ import play.api.libs.concurrent.Execution.Implicits.defaultContext
  */
 
 @Singleton
-class User @Inject()(
+class UserDao @Inject()(
                       protected val dbConfigProvider: DatabaseConfigProvider
                       ) extends HasDatabaseConfigProvider[JdbcProfile]{
 

@@ -1,7 +1,7 @@
 import javax.inject.{Inject, Singleton}
 
 import models.Tables.UserRow
-import models.User
+import models.UserDao
 import org.slf4j.LoggerFactory
 import play.api.mvc._
 
@@ -39,7 +39,6 @@ package object controllers {
   case class ActionUtils @Inject()(
     LoggingAction: LoggingAction
     ) {
-
 
   }
 

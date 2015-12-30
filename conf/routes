@@ -9,10 +9,10 @@ GET        /                            @controllers.Application.index
 GET        /assets/*file                @controllers.Assets.versioned(path="/public", file: Asset)
 
 
-GET        /user/getUserById            @controllers.userApp.getUserDetail
-GET        /user/register               @controllers.userApp.register
-GET        /user/updateLoginInfo        @controllers.userApp.updateLoginInfo
-GET        /user/modifyUserInfo         @controllers.userApp.modifyUserInfo
+GET        /user/getUserById            @controllers.user.getUserDetail
+GET        /user/register               @controllers.user.register
+GET        /user/updateLoginInfo        @controllers.user.updateLoginInfo
+GET        /user/modifyUserInfo         @controllers.user.modifyUserInfo
 
 
 

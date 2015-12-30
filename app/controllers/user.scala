@@ -26,8 +26,8 @@ import scala.concurrent.duration._
 import play.api.Play.current
 
 @Singleton
-class userApp @Inject()(
-                         userMod: User,
+class user @Inject()(
+                         userDao: UserDao,
                          actionUtils: ActionUtils
                          ) extends Controller{
 
@@ -36,9 +36,6 @@ class userApp @Inject()(
 
 
   val log = LoggerFactory.getLogger(this.getClass)
-  private val authAction = LoggingAction
-  private val idCacheKey = "cache.user.id."
-
 
   log.info(s"User Controller: ${System.currentTimeMillis()}")
 
@@ -46,7 +43,7 @@ class userApp @Inject()(
   /**
    * 创建用户
    */
-  def register=authAction.async{implicit request=>
+  def register=Action.async{implicit request=>
     val jsonData=request.body.asJson.get
     val loginname=(jsonData \ "loginname").asOpt[String]
     val name=(jsonData \ "name").as[String]
@@ -59,7 +56,7 @@ class userApp @Inject()(
     val birthyear=(jsonData \ "birthyear").asOpt[String]
     val pic=(jsonData \ "pic").asOpt[String]
 
-    userMod.createUser(None,loginname,name,password,token,phone,email,sex,birthday,birthyear,pic).map { res =>
+    userDao.createUser(None,loginname,name,password,token,phone,email,sex,birthday,birthyear,pic).map { res =>
       if (res == 1) {
         Ok(success)
       } else {
@@ -71,10 +68,10 @@ class userApp @Inject()(
   /**
    * 获取单个用户信息
    * */
-  def getUserDetail= authAction.async { implicit request =>
+  def getUserDetail= Action.async { implicit request =>
     val jsonData=request.body.asJson.get
     val userId=(jsonData \ "loginname").as[Long]
-    userMod.getUserById(userId).map { user =>
+    userDao.getUserById(userId).map { user =>
       Ok(successResult(Json.obj("data" -> Json.obj(
       "userid"->user.get.id,
       "loginname"->user.get.loginname,
@@ -94,7 +91,7 @@ class userApp @Inject()(
 
   /**修改登陆信息
   * */
-  def updateLoginInfo=authAction.async{request=>
+  def updateLoginInfo=Action.async{request=>
     val jsonData=request.body.asJson.get
     val userId=(jsonData \ "userId").as[Long]
     val loginname=(jsonData \ "loginname").asOpt[String]
@@ -103,7 +100,7 @@ class userApp @Inject()(
     val phone=(jsonData \ "phone").asOpt[String]
     val email=(jsonData \ "email").asOpt[String]
 
-    userMod.updateLoginInfo(userId,loginname,name,token,phone,email).map{res=>
+    userDao.updateLoginInfo(userId,loginname,name,token,phone,email).map{res=>
       if(res==1){
         Ok(success)
       }else{
@@ -115,7 +112,7 @@ class userApp @Inject()(
   /**修改资料
    * @return
    */
-  def modifyUserInfo=authAction.async{request=>
+  def modifyUserInfo=Action.async{request=>
     val jsonData=request.body.asJson.get
     val userId=(jsonData \ "userId").as[Long]
     val sex=(jsonData \ "loginname").asOpt[String]
@@ -123,7 +120,7 @@ class userApp @Inject()(
     val birthyear=(jsonData \ "token").asOpt[String]
     val pic=(jsonData \ "phone").asOpt[String]
 
-    userMod.modefyUserInfo(userId,sex,birthday,birthyear,pic).map{res=>
+    userDao.modefyUserInfo(userId,sex,birthday,birthyear,pic).map{res=>
       if(res==1){
         Ok(success)
       }else{
@@ -134,12 +131,12 @@ class userApp @Inject()(
 
 
 
-  def oldpassword = authAction.async { implicit request =>
+  def oldpassword = Action.async { implicit request =>
     val jsonData = request.body.asJson.get
     val id=(jsonData \ "id").as[Long]
     val psw = (jsonData \ "oldpassword").as[String]
     // debugPrintln(psw)
-    userMod.getUserById(id).map {userRow =>
+    userDao.getUserById(id).map {userRow =>
       val md5Hex = DigestUtils.md5Hex(psw+userRow.get.email)
       // val cc= md5Hex == userRow.get.password
       //debugPrintln("aa"+cc)
@@ -160,10 +157,10 @@ class userApp @Inject()(
 //    val oldpsw = (jsonData \ "oldpassword").as[String]
 //    val psw = (jsonData \ "password").as[String]
 //    val id=(jsonData \ "id").as[Long]
-//    userMod.getUserById(id).flatMap {userRow =>
+//    userDao.getUserById(id).flatMap {userRow =>
 //      val oldmd5Hex = DigestUtils.md5Hex(oldpsw+userRow.get.email)
 //      val md5Hex = DigestUtils.md5Hex(psw+userRow.get.email)
-//      userMod.resetPsw(oldmd5Hex, userRow.get.email, md5Hex).map { res =>
+//      userDao.resetPsw(oldmd5Hex, userRow.get.email, md5Hex).map { res =>
 //        log.info(s"${userRow.get.email} change password")
 //        if (res) {
 //          Ok(success)
