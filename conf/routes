@@ -16,4 +16,9 @@ GET        /user/modifyUserInfo         @controllers.user.modifyUserInfo
 
 
 
+GET       /consultant/create                       @controllers.consultant.creatConsultant
+GET       /consultant/getConsultantInfo            @controllers.consultant.getConsultantInfo(userid:Long)
+
+
+
 

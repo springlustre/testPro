@@ -135,11 +135,8 @@ class user @Inject()(
     val jsonData = request.body.asJson.get
     val id=(jsonData \ "id").as[Long]
     val psw = (jsonData \ "oldpassword").as[String]
-    // debugPrintln(psw)
     userDao.getUserById(id).map {userRow =>
       val md5Hex = DigestUtils.md5Hex(psw+userRow.get.email)
-      // val cc= md5Hex == userRow.get.password
-      //debugPrintln("aa"+cc)
       if(userRow.get.password == md5Hex){
         Ok(success)
       }else{

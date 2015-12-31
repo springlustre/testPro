@@ -32,12 +32,15 @@ class ConsultantDao @Inject()(protected val dbConfigProvider:DatabaseConfigProvi
 
   /**根据用户id查询*/
   def getByUserId(userid:Long)={
-    db.run(consultant.filter(_.userid===userid).result)
+    db.run(consultant.filter(_.userid===userid).result.headOption)
+  }
+
+ /**更新*/
+  def updateConsult(userid:Long,introduce:String,proField:String,industry:String)={
+    db.run(consultant.filter(_.userid===userid).map(t=>(t.introduce,t.profield,t.industry)).update((introduce,
+      proField,industry)))
   }
 
 
-  def updateConsult(id:Long,userid:Long,introduce:String,proField:String,industry:String)={
-    db.run(consultant.filter(_.id===id))
-  }
 
 }
