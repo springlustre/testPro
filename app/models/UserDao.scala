@@ -38,22 +38,40 @@ class UserDao @Inject()(
   import slick.driver.MySQLDriver.api._
 
   //
-  def createUser(userid:Option[Long] = None,loginname:Option[String]=None,name:String,password:String,token:Option[String]=None,
-                 phone:Option[String]=None,email:Option[String]=None,sex:Option[String]=None,birthday:Option[String]=None,
-                 birthyear:Option[String]=None,pic:Option[String]=None)={
-    if(userid.isDefined) {
-      db.run(user.map(m => (m.id,m.loginname, m.name, m.password, m.token, m.phone, m.email, m.sex,m.birthday,m.birthyear,m.pic)).
-        forceInsert(userid.get,loginname,name,password,token,phone,email,sex,birthday,birthyear,pic)
-      ).onFailure{ case e => log.error("create user failed." + e.getMessage)}
-      Future.successful(userid.get)
-    }
-    else{
-      log.info("Create user by email=" + email)
-      db.run(user.map(m => (m.loginname, m.name, m.password, m.token, m.phone, m.email, m.sex,m.birthday,m.birthyear,m.pic)).
-        returning(user.map(_.id)) +=(loginname,name,password,token,phone,email,sex,birthday,birthyear,pic)
-      ).mapTo[Long]
-    }
+  /**创建*/
+  def registeUser(loginname:String,password:String,phone:String,token:String,imToken:String,createTime:Long)={
+    db.run(user.map(m=>(m.loginname,m.password,m.phone,m.token,m.imtoken,m.createtime)).returning(user.map(_.id))+=
+      (loginname,password,phone,token,imToken,createTime)).mapTo[Long]
   }
+
+  def login(loginname:String,password:String)={
+    db.run(user.filter(t=>((t.loginname===loginname)&&(t.password===password))||((t.phone===loginname)&&(t.password===password))).result.headOption)
+  }
+
+  //更新信息
+  def updateLocation(userid:Long,locationX:Double,locationY:Double,updateTime:Long)={
+    db.run(user.filter(_.id===userid).map(t=>(t.locationx,t.locationy,t.updatetime)).update(
+    locationX,locationY,updateTime
+    ))
+  }
+
+//  def createUser(userid:Option[Long] = None,loginname:Option[String]=None,name:String,password:String,token:Option[String]=None,
+//                 phone:Option[String]=None,email:Option[String]=None,sex:Option[String]=None,birthday:Option[String]=None,
+//                 birthyear:Option[String]=None,pic:Option[String]=None)={
+//    if(userid.isDefined) {
+//      db.run(user.map(m => (m.id,m.loginname, m.name, m.password, m.token, m.phone, m.email, m.sex,m.birthday,m.birthyear,m.pic)).
+//        forceInsert(userid.get,loginname,name,password,token,phone,email,sex,birthday,birthyear,pic)
+//      ).onFailure{ case e => log.error("create user failed." + e.getMessage)}
+//      Future.successful(userid.get)
+//    }
+//
+//    else{
+//      log.info("Create user by email=" + email)
+//      db.run(user.map(m => (m.loginname, m.name, m.password, m.token, m.phone, m.email, m.sex,m.birthday,m.birthyear,m.pic)).
+//        returning(user.map(_.id)) +=(loginname,name,password,token,phone,email,sex,birthday,birthyear,pic)
+//      ).mapTo[Long]
+//    }
+//  }
 
   def getUserById(id: Long) = {
     db.run(user.filter(_.id === id).result.headOption)
@@ -72,17 +90,17 @@ class UserDao @Inject()(
   }
 
 
-  def updateLoginInfo(userid:Long,loginname:Option[String]=None,name:String,token:Option[String]=None,
-                 phone:Option[String]=None,email:Option[String]=None)={
-    db.run(user.filter(_.id===userid).map(m=>(m.loginname, m.name, m.token, m.phone, m.email)).update(
-      loginname,name,token,phone,email))
-  }
+//  def updateLoginInfo(userid:Long,loginname:Option[String]=None,name:String,token:Option[String]=None,
+//                 phone:Option[String]=None,email:Option[String]=None)={
+//    db.run(user.filter(_.id===userid).map(m=>(m.loginname, m.name, m.token, m.phone, m.email)).update(
+//      loginname,name,token,phone,email))
+//  }
 
-  def modefyUserInfo(userid:Long,sex:Option[String]=None,birthday:Option[String],
-                     birthyear:Option[String],pic:Option[String])={
-  db.run(user.filter(_.id===userid).map(m=>(m.sex,m.birthday,m.birthyear,m.pic)).update(
-    sex,birthday,birthyear,pic))
-  }
+//  def modefyUserInfo(userid:Long,sex:Option[String]=None,birthday:Option[String],
+//                     birthyear:Option[String],pic:Option[String])={
+//  db.run(user.filter(_.id===userid).map(m=>(m.sex,m.birthday,m.birthyear,m.pic)).update(
+//    sex,birthday,birthyear,pic))
+//  }
 
 
 

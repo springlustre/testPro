@@ -32,4 +32,28 @@ trait JsonProtocols extends BaseJsonProtocols{
       )
     }
   }
+
+  implicit val UserRow: Writes[UserRow] = new Writes[UserRow] {
+    override def writes(obj: UserRow): JsValue = {
+      Json.obj(
+        "id"-> obj.id,
+        "loginname" ->obj.loginname,
+        "name" ->obj.name,
+        "password" ->obj.password,
+        "token" ->obj.token,
+        "phone"->obj.phone,
+        "email"->obj.email,
+        "sex"->obj.sex,
+        "birthday"->obj.birthday,
+        "pic"->obj.pic,
+        "imToken"->obj.imtoken,
+        "createTime"->obj.createtime,
+        "updateTime"->obj.updatetime,
+        "locationX"->obj.locationx,
+        "locationY"->obj.locationy
+      )
+    }
+  }
+
+
 }

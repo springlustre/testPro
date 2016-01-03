@@ -14,7 +14,7 @@ trait Tables {
   import slick.jdbc.{GetResult => GR}
 
   /** DDL for all tables. Call .create to execute. */
-  lazy val schema = Array(Consultant.schema, Consumer.schema, Course.schema, History.schema, Trainer.schema, User.schema).reduceLeft(_ ++ _)
+  lazy val schema = Array(Consultant.schema, Consumer.schema, Course.schema, History.schema, Pic.schema, Picture.schema, Trainer.schema, User.schema).reduceLeft(_ ++ _)
   @deprecated("Use .schema instead of .ddl", "3.0")
   def ddl = schema
 
@@ -23,18 +23,19 @@ trait Tables {
    *  @param userid Database column userid SqlType(BIGINT)
    *  @param introduce Database column introduce SqlType(VARCHAR), Length(2000,true), Default()
    *  @param profield Database column proField SqlType(VARCHAR), Length(400,true), Default()
-   *  @param industry Database column industry SqlType(VARCHAR), Length(400,true), Default() */
-  case class ConsultantRow(id: Long, userid: Long, introduce: String = "", profield: String = "", industry: String = "")
+   *  @param industry Database column industry SqlType(VARCHAR), Length(400,true), Default()
+   *  @param pic Database column pic SqlType(VARCHAR), Length(255,true), Default() */
+  case class ConsultantRow(id: Long, userid: Long, introduce: String = "", profield: String = "", industry: String = "", pic: String = "")
   /** GetResult implicit for fetching ConsultantRow objects using plain SQL queries */
   implicit def GetResultConsultantRow(implicit e0: GR[Long], e1: GR[String]): GR[ConsultantRow] = GR{
     prs => import prs._
-    ConsultantRow.tupled((<<[Long], <<[Long], <<[String], <<[String], <<[String]))
+    ConsultantRow.tupled((<<[Long], <<[Long], <<[String], <<[String], <<[String], <<[String]))
   }
   /** Table description of table consultant. Objects of this class serve as prototypes for rows in queries. */
   class Consultant(_tableTag: Tag) extends Table[ConsultantRow](_tableTag, "consultant") {
-    def * = (id, userid, introduce, profield, industry) <> (ConsultantRow.tupled, ConsultantRow.unapply)
+    def * = (id, userid, introduce, profield, industry, pic) <> (ConsultantRow.tupled, ConsultantRow.unapply)
     /** Maps whole row to an option. Useful for outer joins. */
-    def ? = (Rep.Some(id), Rep.Some(userid), Rep.Some(introduce), Rep.Some(profield), Rep.Some(industry)).shaped.<>({r=>import r._; _1.map(_=> ConsultantRow.tupled((_1.get, _2.get, _3.get, _4.get, _5.get)))}, (_:Any) =>  throw new Exception("Inserting into ? projection not supported."))
+    def ? = (Rep.Some(id), Rep.Some(userid), Rep.Some(introduce), Rep.Some(profield), Rep.Some(industry), Rep.Some(pic)).shaped.<>({r=>import r._; _1.map(_=> ConsultantRow.tupled((_1.get, _2.get, _3.get, _4.get, _5.get, _6.get)))}, (_:Any) =>  throw new Exception("Inserting into ? projection not supported."))
 
     /** Database column id SqlType(BIGINT), AutoInc, PrimaryKey */
     val id: Rep[Long] = column[Long]("id", O.AutoInc, O.PrimaryKey)
@@ -46,6 +47,8 @@ trait Tables {
     val profield: Rep[String] = column[String]("proField", O.Length(400,varying=true), O.Default(""))
     /** Database column industry SqlType(VARCHAR), Length(400,true), Default() */
     val industry: Rep[String] = column[String]("industry", O.Length(400,varying=true), O.Default(""))
+    /** Database column pic SqlType(VARCHAR), Length(255,true), Default() */
+    val pic: Rep[String] = column[String]("pic", O.Length(255,varying=true), O.Default(""))
   }
   /** Collection-like TableQuery object for table Consultant */
   lazy val Consultant = new TableQuery(tag => new Consultant(tag))
@@ -158,21 +161,77 @@ trait Tables {
   /** Collection-like TableQuery object for table History */
   lazy val History = new TableQuery(tag => new History(tag))
 
+  /** Entity class storing rows of table Pic
+   *  @param id Database column id SqlType(BIGINT), AutoInc, PrimaryKey
+   *  @param userid Database column userid SqlType(BIGINT)
+   *  @param url Database column url SqlType(VARCHAR), Length(100,true), Default() */
+  case class PicRow(id: Long, userid: Long, url: String = "")
+  /** GetResult implicit for fetching PicRow objects using plain SQL queries */
+  implicit def GetResultPicRow(implicit e0: GR[Long], e1: GR[String]): GR[PicRow] = GR{
+    prs => import prs._
+    PicRow.tupled((<<[Long], <<[Long], <<[String]))
+  }
+  /** Table description of table pic. Objects of this class serve as prototypes for rows in queries. */
+  class Pic(_tableTag: Tag) extends Table[PicRow](_tableTag, "pic") {
+    def * = (id, userid, url) <> (PicRow.tupled, PicRow.unapply)
+    /** Maps whole row to an option. Useful for outer joins. */
+    def ? = (Rep.Some(id), Rep.Some(userid), Rep.Some(url)).shaped.<>({r=>import r._; _1.map(_=> PicRow.tupled((_1.get, _2.get, _3.get)))}, (_:Any) =>  throw new Exception("Inserting into ? projection not supported."))
+
+    /** Database column id SqlType(BIGINT), AutoInc, PrimaryKey */
+    val id: Rep[Long] = column[Long]("id", O.AutoInc, O.PrimaryKey)
+    /** Database column userid SqlType(BIGINT) */
+    val userid: Rep[Long] = column[Long]("userid")
+    /** Database column url SqlType(VARCHAR), Length(100,true), Default() */
+    val url: Rep[String] = column[String]("url", O.Length(100,varying=true), O.Default(""))
+  }
+  /** Collection-like TableQuery object for table Pic */
+  lazy val Pic = new TableQuery(tag => new Pic(tag))
+
+  /** Entity class storing rows of table Picture
+   *  @param id Database column id SqlType(BIGINT), AutoInc, PrimaryKey
+   *  @param userid Database column userid SqlType(VARCHAR), Length(255,true), Default()
+   *  @param username Database column username SqlType(VARCHAR), Length(255,true), Default()
+   *  @param url Database column url SqlType(VARCHAR), Length(255,true), Default() */
+  case class PictureRow(id: Long, userid: String = "", username: String = "", url: String = "")
+  /** GetResult implicit for fetching PictureRow objects using plain SQL queries */
+  implicit def GetResultPictureRow(implicit e0: GR[Long], e1: GR[String]): GR[PictureRow] = GR{
+    prs => import prs._
+    PictureRow.tupled((<<[Long], <<[String], <<[String], <<[String]))
+  }
+  /** Table description of table picture. Objects of this class serve as prototypes for rows in queries. */
+  class Picture(_tableTag: Tag) extends Table[PictureRow](_tableTag, "picture") {
+    def * = (id, userid, username, url) <> (PictureRow.tupled, PictureRow.unapply)
+    /** Maps whole row to an option. Useful for outer joins. */
+    def ? = (Rep.Some(id), Rep.Some(userid), Rep.Some(username), Rep.Some(url)).shaped.<>({r=>import r._; _1.map(_=> PictureRow.tupled((_1.get, _2.get, _3.get, _4.get)))}, (_:Any) =>  throw new Exception("Inserting into ? projection not supported."))
+
+    /** Database column id SqlType(BIGINT), AutoInc, PrimaryKey */
+    val id: Rep[Long] = column[Long]("id", O.AutoInc, O.PrimaryKey)
+    /** Database column userid SqlType(VARCHAR), Length(255,true), Default() */
+    val userid: Rep[String] = column[String]("userid", O.Length(255,varying=true), O.Default(""))
+    /** Database column username SqlType(VARCHAR), Length(255,true), Default() */
+    val username: Rep[String] = column[String]("username", O.Length(255,varying=true), O.Default(""))
+    /** Database column url SqlType(VARCHAR), Length(255,true), Default() */
+    val url: Rep[String] = column[String]("url", O.Length(255,varying=true), O.Default(""))
+  }
+  /** Collection-like TableQuery object for table Picture */
+  lazy val Picture = new TableQuery(tag => new Picture(tag))
+
   /** Entity class storing rows of table Trainer
    *  @param id Database column id SqlType(BIGINT), AutoInc, PrimaryKey
    *  @param userid Database column userid SqlType(BIGINT)
-   *  @param introduce Database column introduce SqlType(VARCHAR), Length(2000,true), Default() */
-  case class TrainerRow(id: Long, userid: Long, introduce: String = "")
+   *  @param introduce Database column introduce SqlType(VARCHAR), Length(2000,true), Default()
+   *  @param pic Database column pic SqlType(VARCHAR), Length(255,true), Default() */
+  case class TrainerRow(id: Long, userid: Long, introduce: String = "", pic: String = "")
   /** GetResult implicit for fetching TrainerRow objects using plain SQL queries */
   implicit def GetResultTrainerRow(implicit e0: GR[Long], e1: GR[String]): GR[TrainerRow] = GR{
     prs => import prs._
-    TrainerRow.tupled((<<[Long], <<[Long], <<[String]))
+    TrainerRow.tupled((<<[Long], <<[Long], <<[String], <<[String]))
   }
   /** Table description of table trainer. Objects of this class serve as prototypes for rows in queries. */
   class Trainer(_tableTag: Tag) extends Table[TrainerRow](_tableTag, "trainer") {
-    def * = (id, userid, introduce) <> (TrainerRow.tupled, TrainerRow.unapply)
+    def * = (id, userid, introduce, pic) <> (TrainerRow.tupled, TrainerRow.unapply)
     /** Maps whole row to an option. Useful for outer joins. */
-    def ? = (Rep.Some(id), Rep.Some(userid), Rep.Some(introduce)).shaped.<>({r=>import r._; _1.map(_=> TrainerRow.tupled((_1.get, _2.get, _3.get)))}, (_:Any) =>  throw new Exception("Inserting into ? projection not supported."))
+    def ? = (Rep.Some(id), Rep.Some(userid), Rep.Some(introduce), Rep.Some(pic)).shaped.<>({r=>import r._; _1.map(_=> TrainerRow.tupled((_1.get, _2.get, _3.get, _4.get)))}, (_:Any) =>  throw new Exception("Inserting into ? projection not supported."))
 
     /** Database column id SqlType(BIGINT), AutoInc, PrimaryKey */
     val id: Rep[Long] = column[Long]("id", O.AutoInc, O.PrimaryKey)
@@ -180,56 +239,70 @@ trait Tables {
     val userid: Rep[Long] = column[Long]("userid")
     /** Database column introduce SqlType(VARCHAR), Length(2000,true), Default() */
     val introduce: Rep[String] = column[String]("introduce", O.Length(2000,varying=true), O.Default(""))
+    /** Database column pic SqlType(VARCHAR), Length(255,true), Default() */
+    val pic: Rep[String] = column[String]("pic", O.Length(255,varying=true), O.Default(""))
   }
   /** Collection-like TableQuery object for table Trainer */
   lazy val Trainer = new TableQuery(tag => new Trainer(tag))
 
   /** Entity class storing rows of table User
    *  @param id Database column id SqlType(BIGINT), AutoInc, PrimaryKey
-   *  @param loginname Database column loginname SqlType(VARCHAR), Length(255,true), Default(None)
-   *  @param name Database column name SqlType(VARCHAR), Length(255,true)
-   *  @param password Database column password SqlType(VARCHAR), Length(255,true)
-   *  @param token Database column token SqlType(VARCHAR), Length(255,true), Default(None)
-   *  @param phone Database column phone SqlType(VARCHAR), Length(255,true), Default(None)
-   *  @param email Database column email SqlType(VARCHAR), Length(255,true), Default(None)
-   *  @param sex Database column sex SqlType(VARCHAR), Length(255,true), Default(None)
-   *  @param birthday Database column birthday SqlType(VARCHAR), Length(255,true), Default(None)
-   *  @param birthyear Database column birthyear SqlType(VARCHAR), Length(255,true), Default(None)
-   *  @param pic Database column pic SqlType(VARCHAR), Length(255,true), Default(None) */
-  case class UserRow(id: Long, loginname: Option[String] = None, name: String, password: String, token: Option[String] = None, phone: Option[String] = None, email: Option[String] = None, sex: Option[String] = None, birthday: Option[String] = None, birthyear: Option[String] = None, pic: Option[String] = None)
+   *  @param loginname Database column loginname SqlType(VARCHAR), Length(255,true), Default()
+   *  @param name Database column name SqlType(VARCHAR), Length(255,true), Default()
+   *  @param password Database column password SqlType(VARCHAR), Length(255,true), Default()
+   *  @param token Database column token SqlType(VARCHAR), Length(255,true), Default()
+   *  @param phone Database column phone SqlType(VARCHAR), Length(255,true), Default()
+   *  @param email Database column email SqlType(VARCHAR), Length(255,true), Default()
+   *  @param sex Database column sex SqlType(VARCHAR), Length(255,true), Default()
+   *  @param birthday Database column birthday SqlType(VARCHAR), Length(255,true), Default()
+   *  @param pic Database column pic SqlType(VARCHAR), Length(255,true), Default()
+   *  @param imtoken Database column imToken SqlType(VARCHAR), Length(255,true), Default()
+   *  @param createtime Database column createTime SqlType(BIGINT), Default(0)
+   *  @param updatetime Database column updateTime SqlType(BIGINT), Default(0)
+   *  @param locationx Database column locationX SqlType(DOUBLE), Default(0.0)
+   *  @param locationy Database column locationY SqlType(DOUBLE), Default(0.0) */
+  case class UserRow(id: Long, loginname: String = "", name: String = "", password: String = "", token: String = "", phone: String = "", email: String = "", sex: String = "", birthday: String = "", pic: String = "", imtoken: String = "", createtime: Long = 0L, updatetime: Long = 0L, locationx: Double = 0.0, locationy: Double = 0.0)
   /** GetResult implicit for fetching UserRow objects using plain SQL queries */
-  implicit def GetResultUserRow(implicit e0: GR[Long], e1: GR[Option[String]], e2: GR[String]): GR[UserRow] = GR{
+  implicit def GetResultUserRow(implicit e0: GR[Long], e1: GR[String], e2: GR[Double]): GR[UserRow] = GR{
     prs => import prs._
-    UserRow.tupled((<<[Long], <<?[String], <<[String], <<[String], <<?[String], <<?[String], <<?[String], <<?[String], <<?[String], <<?[String], <<?[String]))
+    UserRow.tupled((<<[Long], <<[String], <<[String], <<[String], <<[String], <<[String], <<[String], <<[String], <<[String], <<[String], <<[String], <<[Long], <<[Long], <<[Double], <<[Double]))
   }
   /** Table description of table user. Objects of this class serve as prototypes for rows in queries. */
   class User(_tableTag: Tag) extends Table[UserRow](_tableTag, "user") {
-    def * = (id, loginname, name, password, token, phone, email, sex, birthday, birthyear, pic) <> (UserRow.tupled, UserRow.unapply)
+    def * = (id, loginname, name, password, token, phone, email, sex, birthday, pic, imtoken, createtime, updatetime, locationx, locationy) <> (UserRow.tupled, UserRow.unapply)
     /** Maps whole row to an option. Useful for outer joins. */
-    def ? = (Rep.Some(id), loginname, Rep.Some(name), Rep.Some(password), token, phone, email, sex, birthday, birthyear, pic).shaped.<>({r=>import r._; _1.map(_=> UserRow.tupled((_1.get, _2, _3.get, _4.get, _5, _6, _7, _8, _9, _10, _11)))}, (_:Any) =>  throw new Exception("Inserting into ? projection not supported."))
+    def ? = (Rep.Some(id), Rep.Some(loginname), Rep.Some(name), Rep.Some(password), Rep.Some(token), Rep.Some(phone), Rep.Some(email), Rep.Some(sex), Rep.Some(birthday), Rep.Some(pic), Rep.Some(imtoken), Rep.Some(createtime), Rep.Some(updatetime), Rep.Some(locationx), Rep.Some(locationy)).shaped.<>({r=>import r._; _1.map(_=> UserRow.tupled((_1.get, _2.get, _3.get, _4.get, _5.get, _6.get, _7.get, _8.get, _9.get, _10.get, _11.get, _12.get, _13.get, _14.get, _15.get)))}, (_:Any) =>  throw new Exception("Inserting into ? projection not supported."))
 
     /** Database column id SqlType(BIGINT), AutoInc, PrimaryKey */
     val id: Rep[Long] = column[Long]("id", O.AutoInc, O.PrimaryKey)
-    /** Database column loginname SqlType(VARCHAR), Length(255,true), Default(None) */
-    val loginname: Rep[Option[String]] = column[Option[String]]("loginname", O.Length(255,varying=true), O.Default(None))
-    /** Database column name SqlType(VARCHAR), Length(255,true) */
-    val name: Rep[String] = column[String]("name", O.Length(255,varying=true))
-    /** Database column password SqlType(VARCHAR), Length(255,true) */
-    val password: Rep[String] = column[String]("password", O.Length(255,varying=true))
-    /** Database column token SqlType(VARCHAR), Length(255,true), Default(None) */
-    val token: Rep[Option[String]] = column[Option[String]]("token", O.Length(255,varying=true), O.Default(None))
-    /** Database column phone SqlType(VARCHAR), Length(255,true), Default(None) */
-    val phone: Rep[Option[String]] = column[Option[String]]("phone", O.Length(255,varying=true), O.Default(None))
-    /** Database column email SqlType(VARCHAR), Length(255,true), Default(None) */
-    val email: Rep[Option[String]] = column[Option[String]]("email", O.Length(255,varying=true), O.Default(None))
-    /** Database column sex SqlType(VARCHAR), Length(255,true), Default(None) */
-    val sex: Rep[Option[String]] = column[Option[String]]("sex", O.Length(255,varying=true), O.Default(None))
-    /** Database column birthday SqlType(VARCHAR), Length(255,true), Default(None) */
-    val birthday: Rep[Option[String]] = column[Option[String]]("birthday", O.Length(255,varying=true), O.Default(None))
-    /** Database column birthyear SqlType(VARCHAR), Length(255,true), Default(None) */
-    val birthyear: Rep[Option[String]] = column[Option[String]]("birthyear", O.Length(255,varying=true), O.Default(None))
-    /** Database column pic SqlType(VARCHAR), Length(255,true), Default(None) */
-    val pic: Rep[Option[String]] = column[Option[String]]("pic", O.Length(255,varying=true), O.Default(None))
+    /** Database column loginname SqlType(VARCHAR), Length(255,true), Default() */
+    val loginname: Rep[String] = column[String]("loginname", O.Length(255,varying=true), O.Default(""))
+    /** Database column name SqlType(VARCHAR), Length(255,true), Default() */
+    val name: Rep[String] = column[String]("name", O.Length(255,varying=true), O.Default(""))
+    /** Database column password SqlType(VARCHAR), Length(255,true), Default() */
+    val password: Rep[String] = column[String]("password", O.Length(255,varying=true), O.Default(""))
+    /** Database column token SqlType(VARCHAR), Length(255,true), Default() */
+    val token: Rep[String] = column[String]("token", O.Length(255,varying=true), O.Default(""))
+    /** Database column phone SqlType(VARCHAR), Length(255,true), Default() */
+    val phone: Rep[String] = column[String]("phone", O.Length(255,varying=true), O.Default(""))
+    /** Database column email SqlType(VARCHAR), Length(255,true), Default() */
+    val email: Rep[String] = column[String]("email", O.Length(255,varying=true), O.Default(""))
+    /** Database column sex SqlType(VARCHAR), Length(255,true), Default() */
+    val sex: Rep[String] = column[String]("sex", O.Length(255,varying=true), O.Default(""))
+    /** Database column birthday SqlType(VARCHAR), Length(255,true), Default() */
+    val birthday: Rep[String] = column[String]("birthday", O.Length(255,varying=true), O.Default(""))
+    /** Database column pic SqlType(VARCHAR), Length(255,true), Default() */
+    val pic: Rep[String] = column[String]("pic", O.Length(255,varying=true), O.Default(""))
+    /** Database column imToken SqlType(VARCHAR), Length(255,true), Default() */
+    val imtoken: Rep[String] = column[String]("imToken", O.Length(255,varying=true), O.Default(""))
+    /** Database column createTime SqlType(BIGINT), Default(0) */
+    val createtime: Rep[Long] = column[Long]("createTime", O.Default(0L))
+    /** Database column updateTime SqlType(BIGINT), Default(0) */
+    val updatetime: Rep[Long] = column[Long]("updateTime", O.Default(0L))
+    /** Database column locationX SqlType(DOUBLE), Default(0.0) */
+    val locationx: Rep[Double] = column[Double]("locationX", O.Default(0.0))
+    /** Database column locationY SqlType(DOUBLE), Default(0.0) */
+    val locationy: Rep[Double] = column[Double]("locationY", O.Default(0.0))
   }
   /** Collection-like TableQuery object for table User */
   lazy val User = new TableQuery(tag => new User(tag))

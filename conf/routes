@@ -3,21 +3,26 @@
 # ~~~~
 
 # Home page
-GET        /                            @controllers.Application.index
+GET         /                                    @controllers.Application.index
 
 # Map static resources from the /public folder to the /assets URL path
-GET        /assets/*file                @controllers.Assets.versioned(path="/public", file: Asset)
+GET         /assets/*file                        @controllers.Assets.versioned(path="/public", file: Asset)
 
 
-GET        /user/getUserById            @controllers.user.getUserDetail
-GET        /user/register               @controllers.user.register
-GET        /user/updateLoginInfo        @controllers.user.updateLoginInfo
-GET        /user/modifyUserInfo         @controllers.user.modifyUserInfo
+GET         /user/getUserById                    @controllers.user.getUserDetail
+POST        /user/register                       @controllers.user.register
+POST        /user/login                          @controllers.user.login
+POST        /user/updateLocation                 @controllers.user.updateLocation
+
+GET         /lecturer/getAll                     @controllers.lecturer.getAllLecturer
+
+#GET        /user/updateLoginInfo        @controllers.user.updateLoginInfo
+#GET        /user/modifyUserInfo         @controllers.user.modifyUserInfo
 
 
 
-GET       /consultant/create                       @controllers.consultant.creatConsultant
-GET       /consultant/getConsultantInfo            @controllers.consultant.getConsultantInfo(userid:Long)
+GET         /consultant/create                   @controllers.lecturer.creatConsultant
+GET         /consultant/getConsultantInfo        @controllers.lecturer.getConsultantInfo(userid:Long)
 
 
 

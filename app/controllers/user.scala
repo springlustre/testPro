@@ -17,19 +17,15 @@ import play.api.libs.json.{JsUndefined, Json}
 
 import play.api.mvc.{Action, Controller}
 import util.JsonUtil._
-
 import scala.concurrent.Future
-
-import util.JsonUtil._
-
 import scala.concurrent.duration._
 import play.api.Play.current
-
+import util.TimeFormatUtil._
 @Singleton
 class user @Inject()(
                          userDao: UserDao,
                          actionUtils: ActionUtils
-                         ) extends Controller{
+                         ) extends Controller with JsonProtocols{
 
   import actionUtils._
   import play.api.libs.concurrent.Execution.Implicits.defaultContext
@@ -37,32 +33,63 @@ class user @Inject()(
 
   val log = LoggerFactory.getLogger(this.getClass)
 
-  log.info(s"User Controller: ${System.currentTimeMillis()}")
 
 
   /**
    * 创建用户
    */
   def register=Action.async{implicit request=>
-    val jsonData=request.body.asJson.get
-    val loginname=(jsonData \ "loginname").asOpt[String]
-    val name=(jsonData \ "name").as[String]
+    val jsonData=Json.parse(request.body.asText.get)
+    val loginname=(jsonData \ "loginname").as[String]
     val password=(jsonData \ "password").as[String]
     val token=(jsonData \ "token").asOpt[String]
-    val phone=(jsonData \ "phone").asOpt[String]
-    val email=(jsonData \ "email").asOpt[String]
-    val sex=(jsonData \ "sex").asOpt[String]
-    val birthday=(jsonData \ "biethday").asOpt[String]
-    val birthyear=(jsonData \ "birthyear").asOpt[String]
-    val pic=(jsonData \ "pic").asOpt[String]
-
-    userDao.createUser(None,loginname,name,password,token,phone,email,sex,birthday,birthyear,pic).map { res =>
-      if (res == 1) {
-        Ok(success)
-      } else {
-        Ok(jsonResult(10000,"failed!"))
+    val imToken=(jsonData \ "imToken").asOpt[String]
+    val phone=(jsonData \ "phone").as[String]
+    val createTime= System.currentTimeMillis()
+    userDao.registeUser(loginname,password,phone,token.getOrElse(""),imToken.getOrElse(""),createTime).map{res=>
+      if(res>0){
+        Ok(successResult(Json.obj("id"->res)))
+      }
+      else{
+        Ok(jsonResult(10002,"注册失败！"))
       }
     }
+  }
+
+
+  /**登陆*/
+  def login=Action.async{implicit request=>
+    val jsonData=Json.parse(request.body.asText.get)
+    val loginname=(jsonData \ "loginname").as[String]
+    val password=(jsonData \ "password").as[String]
+    println(loginname+password)
+    userDao.login(loginname,password).map{res=>
+      if(res.isDefined){
+        Ok(successResult(Json.obj("data"->res.get)))
+      }else{
+        Ok(jsonResult(10003,"登录失败"))
+      }
+    }
+  }
+
+  /**更新位置信息*/
+  def updateLocation=Action.async{implicit request=>
+    val jsonData=Json.parse(request.body.asText.get)
+    println(jsonData)
+    val userid=(jsonData \ "userid").as[String].toLong
+    val locationX=(jsonData \ "locationX").as[Double]
+    val locationY=(jsonData \ "locationY").as[Double]
+    val time=(jsonData \ "updateTime").as[String]
+    val updateTime=toTimeStamp(time)
+    println("---------"+locationX+updateTime)
+    userDao.updateLocation(userid,locationX,locationY,updateTime).map{res=>
+      if(res>0){
+        Ok(successResult(Json.obj("data"->"更新位置成功！")))
+      }else{
+        Ok(jsonResult(10004,"更新位置失败"))
+      }
+    }
+    //Future.successful(Ok(success))
   }
 
   /**
@@ -82,7 +109,6 @@ class user @Inject()(
         "email"->user.get.email,
         "sex"->user.get.sex,
         "birthday"->user.get.birthday,
-        "birthyear"->user.get.birthyear,
         "pic"->user.get.pic
       ))))
     }
@@ -91,43 +117,43 @@ class user @Inject()(
 
   /**修改登陆信息
   * */
-  def updateLoginInfo=Action.async{request=>
-    val jsonData=request.body.asJson.get
-    val userId=(jsonData \ "userId").as[Long]
-    val loginname=(jsonData \ "loginname").asOpt[String]
-    val name=(jsonData \ "name").as[String]
-    val token=(jsonData \ "token").asOpt[String]
-    val phone=(jsonData \ "phone").asOpt[String]
-    val email=(jsonData \ "email").asOpt[String]
-
-    userDao.updateLoginInfo(userId,loginname,name,token,phone,email).map{res=>
-      if(res==1){
-        Ok(success)
-      }else{
-        Ok(jsonResult(10001,"failed"))
-      }
-    }
-  }
-
-  /**修改资料
-   * @return
-   */
-  def modifyUserInfo=Action.async{request=>
-    val jsonData=request.body.asJson.get
-    val userId=(jsonData \ "userId").as[Long]
-    val sex=(jsonData \ "loginname").asOpt[String]
-    val birthday=(jsonData \ "name").asOpt[String]
-    val birthyear=(jsonData \ "token").asOpt[String]
-    val pic=(jsonData \ "phone").asOpt[String]
-
-    userDao.modefyUserInfo(userId,sex,birthday,birthyear,pic).map{res=>
-      if(res==1){
-        Ok(success)
-      }else{
-        Ok(jsonResult(10002,"failed"))
-      }
-    }
-  }
+//  def updateLoginInfo=Action.async{request=>
+//    val jsonData=request.body.asJson.get
+//    val userId=(jsonData \ "userId").as[Long]
+//    val loginname=(jsonData \ "loginname").asOpt[String]
+//    val name=(jsonData \ "name").as[String]
+//    val token=(jsonData \ "token").asOpt[String]
+//    val phone=(jsonData \ "phone").asOpt[String]
+//    val email=(jsonData \ "email").asOpt[String]
+//
+//    userDao.updateLoginInfo(userId,loginname,name,token,phone,email).map{res=>
+//      if(res==1){
+//        Ok(success)
+//      }else{
+//        Ok(jsonResult(10001,"failed"))
+//      }
+//    }
+//  }
+//
+//  /**修改资料
+//   * @return
+//   */
+//  def modifyUserInfo=Action.async{request=>
+//    val jsonData=request.body.asJson.get
+//    val userId=(jsonData \ "userId").as[Long]
+//    val sex=(jsonData \ "loginname").asOpt[String]
+//    val birthday=(jsonData \ "name").asOpt[String]
+//    val birthyear=(jsonData \ "token").asOpt[String]
+//    val pic=(jsonData \ "phone").asOpt[String]
+//
+//    userDao.modefyUserInfo(userId,sex,birthday,birthyear,pic).map{res=>
+//      if(res==1){
+//        Ok(success)
+//      }else{
+//        Ok(jsonResult(10002,"failed"))
+//      }
+//    }
+//  }
 
 
 

@@ -1,5 +1,7 @@
 package util
 
+import java.sql.Date
+import java.text.SimpleDateFormat
 import java.util.Calendar
 import com.twitter.util.{Time, TimeFormat}
 import org.slf4j.LoggerFactory
@@ -81,4 +83,37 @@ object TimeFormatUtil {
     calendar.set(Calendar.MILLISECOND,0)
     calendar.getTimeInMillis
   }
+
+  /**得到时间戳的年份*/
+  def yearOfTimeStamp(timeStampMs:Long)={
+    val timeMs=if(timeStampMs < 10000000000L) timeStampMs*1000 else timeStampMs
+    val data  = new Date(timeMs)
+    val format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
+    format.format(data).split("-")(0)
+  }
+
+  /**得到时间戳的月份*/
+  def monthOfTimeStamp(timeStampMs:Long)={
+    val timeMs=if(timeStampMs < 10000000000L) timeStampMs*1000 else timeStampMs
+    val data  = new Date(timeMs)
+    val format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
+    format.format(data).split("-")(1)
+  }
+
+  /**得到时间戳的天*/
+  def dayOfTimeStamp(timeStampMs:Long)={
+    //判断时间戳是否为毫秒 毫秒为13位
+    val timeMs=if(timeStampMs < 10000000000L) timeStampMs*1000 else timeStampMs
+    val data  = new Date(timeMs)
+    val format = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss")
+    format.format(data).split("-")(2)
+  }
+
+  /**格式化转时间戳*/
+  def toTimeStamp(time:String)={
+    val format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
+    val date=format.parse(time)
+    date.getTime
+  }
+
 }

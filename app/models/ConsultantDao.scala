@@ -17,6 +17,7 @@ class ConsultantDao @Inject()(protected val dbConfigProvider:DatabaseConfigProvi
   import slick.driver.MySQLDriver.api._
 
   private[this] val consultant=Tables.Consultant
+  private[this] val user=Tables.User
   private[this] val log = Logger(this.getClass)
 
   /**创建*/
@@ -27,7 +28,7 @@ class ConsultantDao @Inject()(protected val dbConfigProvider:DatabaseConfigProvi
 
   /**得到所有*/
   def getAll={
-    db.run(consultant.result)
+    db.run(consultant.join(user).on(_.userid===_.id).result)
   }
 
   /**根据用户id查询*/
