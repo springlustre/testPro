@@ -18,6 +18,7 @@ class ConsultantDao @Inject()(protected val dbConfigProvider:DatabaseConfigProvi
 
   private[this] val consultant=Tables.Consultant
   private[this] val user=Tables.User
+  private[this] val pic=Tables.Pic
   private[this] val log = Logger(this.getClass)
 
   /**创建*/
@@ -33,7 +34,12 @@ class ConsultantDao @Inject()(protected val dbConfigProvider:DatabaseConfigProvi
 
   /**根据用户id查询*/
   def getByUserId(userid:Long)={
-    db.run(consultant.filter(_.userid===userid).result.headOption)
+    db.run(consultant.filter(_.userid===userid).join(user).on(_.userid===_.id).result.headOption)
+  }
+
+  /**获取图片*/
+  def getPicByUserId(userid:Long)={
+    db.run(pic.filter(_.userid===userid).result)
   }
 
  /**更新*/

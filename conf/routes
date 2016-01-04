@@ -15,6 +15,7 @@ POST        /user/login                          @controllers.user.login
 POST        /user/updateLocation                 @controllers.user.updateLocation
 
 GET         /lecturer/getAll                     @controllers.lecturer.getAllLecturer
+GET         /lecturer/getLecturerInfo            @controllers.lecturer.getLecturerInfo(userid:Long,userType:String)
 
 #GET        /user/updateLoginInfo        @controllers.user.updateLoginInfo
 #GET        /user/modifyUserInfo         @controllers.user.modifyUserInfo

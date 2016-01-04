@@ -19,6 +19,7 @@ class TrainerDao @Inject()(protected val dbConfigProvider:DatabaseConfigProvider
   private[this] val consultant=Tables.Consultant
   private[this] val trainer=Tables.Trainer
   private[this] val user=Tables.User
+  private[this] val course=Tables.Course
   private[this] val log = Logger(this.getClass)
 
   /**创建*/
@@ -34,7 +35,11 @@ class TrainerDao @Inject()(protected val dbConfigProvider:DatabaseConfigProvider
 
   /**根据用户id查询*/
   def getByUserId(userid:Long)={
-    db.run(trainer.filter(_.userid===userid).result.headOption)
+    db.run(trainer.filter(_.userid===userid).join(user).on(_.userid===_.id).result.headOption)
+  }
+  /**获得所有课程*/
+  def getCourseByUserId(userid:Long)={
+    db.run(course.filter(_.userid===userid).result)
   }
 
   /**更新*/
