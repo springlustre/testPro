@@ -56,7 +56,7 @@ class lecturer@Inject()(consultantDao:ConsultantDao,trainerDao: TrainerDao) exte
        val trainer=train.map{res=>
          val train=res._1
          val user=res._2
-         Json.obj("id"->train.userid,"name"->user.name,"type"->"咨询师","pic"->train.pic,"content"->train.introduce)
+         Json.obj("id"->train.userid,"name"->user.name,"type"->"培训师","pic"->train.pic,"content"->train.introduce)
        }
       val a=consultant++trainer
       Ok(successResult(Json.obj("data"->a)))
@@ -66,8 +66,11 @@ class lecturer@Inject()(consultantDao:ConsultantDao,trainerDao: TrainerDao) exte
 
 
  /**获取某个lecturer的信息*/
-  def getLecturerInfo(userid:Long,userType:String)=Action.async { implicit request =>
-   //val jsonData=Json.parse(request.body.asText.get)
+  def getLecturerInfo=Action.async { implicit request =>
+   val jsonData=Json.parse(request.body.asText.get)
+   val userid=(jsonData \ "userid").as[String].toLong
+   val userType=(jsonData \ "type").as[String]
+   println("=============getInfo"+userid+userType)
    consultantDao.getPicByUserId(userid).flatMap { seq =>
      val picture=seq.map{pic=> pic.url}
 
@@ -76,7 +79,7 @@ class lecturer@Inject()(consultantDao:ConsultantDao,trainerDao: TrainerDao) exte
          if (res.isDefined) {
            val con = res.get._1
            val user = res.get._2
-           val picUrl=picture++Seq(user.pic)
+           val picUrl=Seq(con.pic)++picture
            Ok(successResult(Json.obj("id" -> con.userid, "name" -> user.name, "type" -> "咨询师", "introduce" -> con.introduce,
              "profield" -> con.profield.split(","), "industry" -> con.industry.split(","),
              "locationX" -> user.locationx, "locationY" -> user.locationy, "pic"->picUrl)))
@@ -89,7 +92,7 @@ class lecturer@Inject()(consultantDao:ConsultantDao,trainerDao: TrainerDao) exte
          if (res.isDefined) {
            val train = res.get._1
            val user = res.get._2
-           val picUrl=picture++Seq(user.pic)
+           val picUrl=Seq(train.pic)++picture
            trainerDao.getCourseByUserId(userid).map{seq=>
              val courseSeq=seq.map{course=>
                Json.obj("theme"->course.theme,"target"->course.target,
