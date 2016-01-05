@@ -113,4 +113,13 @@ class lecturer@Inject()(consultantDao:ConsultantDao,trainerDao: TrainerDao) exte
  }
 
 
+
+  /**注册信息*/
+//  def registerLecturer=Action.async{implicit request=>
+//    val jsonData=Json.parse(request.body.asText.get)
+//  }
+
+
+
+
 }
