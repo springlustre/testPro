@@ -115,9 +115,21 @@ class lecturer@Inject()(consultantDao:ConsultantDao,trainerDao: TrainerDao) exte
 
 
   /**注册信息*/
-//  def registerLecturer=Action.async{implicit request=>
-//    val jsonData=Json.parse(request.body.asText.get)
-//  }
+  def registerConsultant=Action.async{implicit request=>
+    val jsonData=Json.parse(request.body.asText.get)
+    val userid=(jsonData \ "userid").as[Long]
+//    val usertype=(jsonData \ "type").as[String]
+    val introduce=(jsonData \ "introduce").as[String]
+    val proField=(jsonData \ "proField").as[String]
+    val industry=(jsonData \ "industry").as[String]
+    consultantDao.createConsult(userid,introduce,proField,industry).map{res=>
+      if(res>0){
+        Ok(successResult(Json.obj("data"->res)))
+      }else{
+        Ok(jsonResult(10010,"注册失败！"))
+      }
+    }
+  }
 
 
 
