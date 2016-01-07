@@ -114,6 +114,10 @@ class user @Inject()(
     }
   }
 
+  /**保存信息*/
+//  def savePersonInfo()={
+//
+//  }
 
   /**修改登陆信息
   * */

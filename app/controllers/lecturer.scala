@@ -131,6 +131,25 @@ class lecturer@Inject()(consultantDao:ConsultantDao,trainerDao: TrainerDao) exte
     }
   }
 
+  //培训师
+  def registerTrainer=Action.async{implicit request=>
+    val jsonData=Json.parse(request.body.asText.get)
+    //{"introduce":"啊啊啊啊啊","userid":"15","courseInfo":[["吧","哈哈","1#2#3#4#5#6#"]]}
+    println(jsonData)
+    val userid=(jsonData \ "userid").as[String].toLong
+    val introduce=(jsonData \ "introduce").as[String]
+   // val courseInfo=(jsonData \ "courseInfo").as[List]
+    Future.successful(Ok(success))
+  }
+
+  /**客户*/
+  def registerConsumer=Action.async{implicit  request=>
+    //{"introduce":"啊啊啊啊啊","position":"研发","place":"计算机","company":"eb","profession":"计算机"}
+    val jsonData=Json.parse(request.body.asText.get)
+    println(jsonData)
+    Future.successful(Ok(success))
+  }
+
 
 
 

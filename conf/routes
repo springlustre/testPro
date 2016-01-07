@@ -26,6 +26,10 @@ POST        /lecturer/getLecturerInfo             @controllers.lecturer.getLectu
 GET         /consultant/create                    @controllers.lecturer.creatConsultant
 GET         /consultant/getConsultantInfo         @controllers.lecturer.getConsultantInfo(userid:Long)
 POST        /consultant/registerConsultant        @controllers.lecturer.registerConsultant
+POST        /consultant/registerTrainer           @controllers.lecturer.registerTrainer
+POST        /consultant/registerConsumer          @controllers.lecturer.registerConsumer
+
+
 
 
 
