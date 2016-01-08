@@ -47,4 +47,7 @@ class TrainerDao @Inject()(protected val dbConfigProvider:DatabaseConfigProvider
     db.run(trainer.filter(_.userid===userid).map(t=>t.introduce).update(introduce))
   }
 
+  /**添加更新课程*/
+  def updateCourse(userid:Long,)
+
 }
