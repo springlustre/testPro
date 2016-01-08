@@ -4,7 +4,7 @@ import javax.inject.{Singleton, Inject}
 
 import models.{UserDao, TrainerDao, JsonProtocols, ConsultantDao}
 import org.slf4j.LoggerFactory
-import play.api.libs.json.Json
+import play.api.libs.json.{JsArray, Json}
 import play.api.mvc.{Action, Controller}
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
@@ -136,10 +136,12 @@ class lecturer@Inject()(consultantDao:ConsultantDao,trainerDao: TrainerDao,
   def registerTrainer=Action.async{implicit request=>
     val jsonData=Json.parse(request.body.asText.get)
     //{"introduce":"啊啊啊啊啊","userid":"15","courseInfo":[["吧","哈哈","1#2#3#4#5#6#"]]}
-    println(jsonData)
     val userid=(jsonData \ "userid").as[String].toLong
     val introduce=(jsonData \ "introduce").as[String]
-   // val courseInfo=(jsonData \ "courseInfo").as[List]
+    val courseInfo=(jsonData \ "courseInfo").as[JsArray].value.map(j =>
+                    j.as[JsArray].value.map(i=> i.validate[String].get))
+    //ListBuffer(ListBuffer(主题1, 啊啊啊, 1#2#3#4###), ListBuffer(主题2, 目标2, 1#2#3#4#2#6#))
+
     Future.successful(Ok(success))
   }
 

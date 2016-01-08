@@ -48,6 +48,6 @@ class TrainerDao @Inject()(protected val dbConfigProvider:DatabaseConfigProvider
   }
 
   /**添加更新课程*/
-  def updateCourse(userid:Long,)
+//  def updateCourse(userid:Long,)
 
 }
