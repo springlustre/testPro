@@ -13,6 +13,7 @@ GET         /user/getUserById                     @controllers.user.getUserDetai
 POST        /user/register                        @controllers.user.register
 POST        /user/login                           @controllers.user.login
 POST        /user/updateLocation                  @controllers.user.updateLocation
+POST        /user/savePersonInfo                  @controllers.user.savePersonInfo
 
 GET         /lecturer/getAll                      @controllers.lecturer.getAllLecturer
 POST        /lecturer/getLecturerInfo             @controllers.lecturer.getLecturerInfo

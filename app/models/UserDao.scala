@@ -22,6 +22,7 @@ class UserDao @Inject()(
 
   private[this] val log = LoggerFactory.getLogger(this.getClass)
   private[this] val user = Tables.User
+  private[this] val consumer=Tables.Consumer
   private val idCacheKey = "cache.user.id."
   private val emailCacheKey = "cache.user.email."
 
@@ -52,6 +53,13 @@ class UserDao @Inject()(
   def updateLocation(userid:Long,locationX:Double,locationY:Double,updateTime:Long)={
     db.run(user.filter(_.id===userid).map(t=>(t.locationx,t.locationy,t.updatetime)).update(
     locationX,locationY,updateTime
+    ))
+  }
+
+  //更新信息
+  def updatePersonInfo(userid:Long,name:String,password:String,phone:String,sex:String,birthday:String)={
+    db.run(user.filter(_.id===userid).map(t=>(t.name,t.password,t.phone,t.sex,t.birthday)).update(
+      name,password,phone,sex,birthday
     ))
   }
 
@@ -102,6 +110,18 @@ class UserDao @Inject()(
 //    sex,birthday,birthyear,pic))
 //  }
 
+  def updateConsumer(userid:Long,introduce:String,profession:String,company:String,position:String,place:String)={
+    db.run(consumer.filter(_.userid===userid).result.headOption).flatMap{res=>
+      if(res.isDefined){
+        db.run(consumer.filter(_.userid===userid).map(t=>(t.introduce,t.profession,t.company,t.position,t.site)).update(
+          (introduce,profession,company,position,place)
+        ))
+      }else{
+        db.run(consumer.map(t=>(t.introduce,t.profession,t.company,t.position,t.site)).returning(consumer.map(_.id))+=(
+          introduce,profession,company,position,place)).mapTo[Long]
+      }
+    }
+  }
 
 
 

@@ -115,9 +115,22 @@ class user @Inject()(
   }
 
   /**保存信息*/
-//  def savePersonInfo()={
-//
-//  }
+  def savePersonInfo=Action.async{implicit request=>
+    val jsonData=request.body.asJson.get
+    val userid=(jsonData \ "userid").as[String].toLong
+    val name=(jsonData \ "name").as[String]
+    val password=(jsonData \ "password").as[String]
+    val phone=(jsonData \ "phone").as[String]
+    val sex=(jsonData \ "sex").as[String]
+    val birthday=(jsonData \ "birthday").as[String]
+    userDao.updatePersonInfo(userid,name,password,phone,sex,birthday).map{res=>
+     if(res>0){
+       Ok(success)
+     }else{
+       Ok(jsonResult(10000,"保存失败！"))
+     }
+    }
+  }
 
   /**修改登陆信息
   * */
@@ -161,19 +174,19 @@ class user @Inject()(
 
 
 
-  def oldpassword = Action.async { implicit request =>
-    val jsonData = request.body.asJson.get
-    val id=(jsonData \ "id").as[Long]
-    val psw = (jsonData \ "oldpassword").as[String]
-    userDao.getUserById(id).map {userRow =>
-      val md5Hex = DigestUtils.md5Hex(psw+userRow.get.email)
-      if(userRow.get.password == md5Hex){
-        Ok(success)
-      }else{
-        Ok(jsonResult(1,""))
-      }
-    }
-  }
+//  def oldpassword = Action.async { implicit request =>
+//    val jsonData = request.body.asJson.get
+//    val id=(jsonData \ "id").as[Long]
+//    val psw = (jsonData \ "oldpassword").as[String]
+//    userDao.getUserById(id).map {userRow =>
+//      val md5Hex = DigestUtils.md5Hex(psw+userRow.get.email)
+//      if(userRow.get.password == md5Hex){
+//        Ok(success)
+//      }else{
+//        Ok(jsonResult(1,""))
+//      }
+//    }
+//  }
 
 
   /* to change the password * */

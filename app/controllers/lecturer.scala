@@ -2,7 +2,7 @@ package controllers
 
 import javax.inject.{Singleton, Inject}
 
-import models.{TrainerDao, JsonProtocols, ConsultantDao}
+import models.{UserDao, TrainerDao, JsonProtocols, ConsultantDao}
 import org.slf4j.LoggerFactory
 import play.api.libs.json.Json
 import play.api.mvc.{Action, Controller}
@@ -13,7 +13,8 @@ import scala.concurrent.Future
  * Created by 王春泽 on 2015/12/31.
  */
 @Singleton
-class lecturer@Inject()(consultantDao:ConsultantDao,trainerDao: TrainerDao) extends Controller with JsonProtocols{
+class lecturer@Inject()(consultantDao:ConsultantDao,trainerDao: TrainerDao,
+                        userDao: UserDao ) extends Controller with JsonProtocols{
   val log = LoggerFactory.getLogger(this.getClass)
 
   /**创建*/
@@ -144,10 +145,21 @@ class lecturer@Inject()(consultantDao:ConsultantDao,trainerDao: TrainerDao) exte
 
   /**客户*/
   def registerConsumer=Action.async{implicit  request=>
-    //{"introduce":"啊啊啊啊啊","position":"研发","place":"计算机","company":"eb","profession":"计算机"}
     val jsonData=Json.parse(request.body.asText.get)
+    val userid=(jsonData \ "userid").as[String].toLong
+    val introduce=(jsonData \ "introduce").as[String]
+    val profession=(jsonData \ "profession").as[String]
+    val company=(jsonData \ "company").as[String]
+    val position=(jsonData \ "position").as[String]
+    val place=(jsonData \ "place").as[String]
     println(jsonData)
-    Future.successful(Ok(success))
+    userDao.updateConsumer(userid,introduce,profession,company,position,place).map{res=>
+      if(res>0){
+        Ok(success)
+      }else{
+        Ok(jsonResult(10011,"保存失败！"))
+      }
+    }
   }
 
 
