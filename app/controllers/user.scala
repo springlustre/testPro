@@ -132,6 +132,47 @@ class user @Inject()(
     }
   }
 
+
+  /**get consumer info*/
+  def getConsumerInfo=Action.async{implicit request=>
+    val jsonData=Json.parse(request.body.asText.get)
+    println(jsonData)
+    val userid=(jsonData \ "userid").as[String].toLong
+    userDao.getConsumer(userid).map{res=>
+      if(res.isDefined){
+        Ok(successResult(Json.obj(
+          "id"->res.get.id,
+          "userid"->res.get.userid,
+          "profession"->res.get.profession,
+          "company"->res.get.company,
+          "position"->res.get.position,
+          "site"->res.get.site,
+          "introduce"->res.get.introduce
+        )))
+      }else{
+        Ok(jsonResult(10000,"获取失败！"))
+      }
+    }
+  }
+  /**register consumer*/
+  def registerConsumer=Action.async{implicit request=>
+    val jsonData=Json.parse(request.body.asText.get)
+    val userid=(jsonData \ "userid").as[String].toLong
+    val introduce=(jsonData \ "introduce").as[String]
+    val profession=(jsonData \ "profession").as[String]
+    val company=(jsonData \ "company").as[String]
+    val position=(jsonData \ "position").as[String]
+    val place=(jsonData \ "place").as[String]
+    println(jsonData)
+    userDao.updateConsumer(userid,introduce,profession,company,position,place).map{res=>
+      if(res>0L){
+        Ok(success)
+      }else{
+        Ok(jsonResult(10011,"保存失败！"))
+      }
+    }
+  }
+
   /**修改登陆信息
   * */
 //  def updateLoginInfo=Action.async{request=>

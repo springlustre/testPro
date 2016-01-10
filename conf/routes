@@ -28,7 +28,9 @@ GET         /consultant/create                    @controllers.lecturer.creatCon
 GET         /consultant/getConsultantInfo         @controllers.lecturer.getConsultantInfo(userid:Long)
 POST        /consultant/registerConsultant        @controllers.lecturer.registerConsultant
 POST        /consultant/registerTrainer           @controllers.lecturer.registerTrainer
-POST        /consultant/registerConsumer          @controllers.lecturer.registerConsumer
+
+POST        /user/getConsumerInfo                 @controllers.user.getConsumerInfo
+POST        /user/registerConsumer                @controllers.user.registerConsumer
 
 
 

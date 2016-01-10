@@ -110,15 +110,19 @@ class UserDao @Inject()(
 //    sex,birthday,birthyear,pic))
 //  }
 
+  def getConsumer(userid:Long)={
+    db.run(consumer.filter(_.userid===userid).result.headOption)
+  }
+
   def updateConsumer(userid:Long,introduce:String,profession:String,company:String,position:String,place:String)={
     db.run(consumer.filter(_.userid===userid).result.headOption).flatMap{res=>
       if(res.isDefined){
         db.run(consumer.filter(_.userid===userid).map(t=>(t.introduce,t.profession,t.company,t.position,t.site)).update(
           (introduce,profession,company,position,place)
-        ))
+        )).mapTo[Int]
       }else{
-        db.run(consumer.map(t=>(t.introduce,t.profession,t.company,t.position,t.site)).returning(consumer.map(_.id))+=(
-          introduce,profession,company,position,place)).mapTo[Long]
+        db.run(consumer.map(t=>(t.userid,t.introduce,t.profession,t.company,t.position,t.site)).returning(consumer.map(_.id))+=(
+          userid,introduce,profession,company,position,place)).mapTo[Int]
       }
     }
   }

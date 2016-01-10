@@ -135,17 +135,45 @@ class lecturer@Inject()(consultantDao:ConsultantDao,trainerDao: TrainerDao,
   //培训师
   def registerTrainer=Action.async{implicit request=>
     val jsonData=Json.parse(request.body.asText.get)
-    //{"introduce":"啊啊啊啊啊","userid":"15","courseInfo":[["吧","哈哈","1#2#3#4#5#6#"]]}
     val userid=(jsonData \ "userid").as[String].toLong
     val introduce=(jsonData \ "introduce").as[String]
     val courseInfo=(jsonData \ "courseInfo").as[JsArray].value.map(j =>
                     j.as[JsArray].value.map(i=> i.validate[String].get))
-    //ListBuffer(ListBuffer(主题1, 啊啊啊, 1#2#3#4###), ListBuffer(主题2, 目标2, 1#2#3#4#2#6#))
-
-    Future.successful(Ok(success))
+    trainerDao.createTrainer(userid,introduce).map{res=>
+      if(res>0){
+        courseInfo.map{course=>
+          val theme=course(0)
+          val target=course(1)
+          val outline=course(2)
+          trainerDao.updateCourse(userid,res,theme,target,outline)
+        }
+        Ok(success)
+      }else{
+        Ok(jsonResult(10000,"创建失败！"))
+      }
+    }
   }
 
-  /**客户*/
+  /**get consumer info*/
+  def getConsumerInfo(userid:Long)=Action.async{implicit request=>
+    userDao.getConsumer(userid).map{res=>
+      if(res.isDefined){
+        Ok(successResult(Json.obj(
+          "id"->res.get.id,
+          "userid"->res.get.userid,
+          "profession"->res.get.profession,
+          "company"->res.get.company,
+          "position"->res.get.position,
+          "site"->res.get.site,
+          "introduce"->res.get.introduce
+           )))
+      }else{
+        Ok(jsonResult(10000,"获取失败！"))
+      }
+    }
+  }
+
+  /**register consumer*/
   def registerConsumer=Action.async{implicit  request=>
     val jsonData=Json.parse(request.body.asText.get)
     val userid=(jsonData \ "userid").as[String].toLong
@@ -156,7 +184,7 @@ class lecturer@Inject()(consultantDao:ConsultantDao,trainerDao: TrainerDao,
     val place=(jsonData \ "place").as[String]
     println(jsonData)
     userDao.updateConsumer(userid,introduce,profession,company,position,place).map{res=>
-      if(res>0){
+      if(res>0L){
         Ok(success)
       }else{
         Ok(jsonResult(10011,"保存失败！"))
