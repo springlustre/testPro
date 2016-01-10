@@ -96,8 +96,8 @@ class user @Inject()(
    * 获取单个用户信息
    * */
   def getUserDetail= Action.async { implicit request =>
-    val jsonData=request.body.asJson.get
-    val userId=(jsonData \ "loginname").as[Long]
+    val jsonData=Json.parse(request.body.asText.get)
+    val userId=(jsonData \ "userid").as[String].toLong
     userDao.getUserById(userId).map { user =>
       Ok(successResult(Json.obj("data" -> Json.obj(
       "userid"->user.get.id,
@@ -116,7 +116,7 @@ class user @Inject()(
 
   /**保存信息*/
   def savePersonInfo=Action.async{implicit request=>
-    val jsonData=request.body.asJson.get
+    val jsonData=Json.parse(request.body.asText.get)
     val userid=(jsonData \ "userid").as[String].toLong
     val name=(jsonData \ "name").as[String]
     val password=(jsonData \ "password").as[String]
@@ -172,6 +172,18 @@ class user @Inject()(
       }
     }
   }
+
+
+
+
+  /**保存图片到pic*/
+//  def savePic=Action.async{implicit request=>
+//    val jsonData=Json.parse(request.body.asText.get)
+//    val userid=(jsonData \ "userid").as[String].toLong
+//    val picUrl=(jsonData \ "picUrl").as[String]
+//
+//  }
+
 
   /**修改登陆信息
   * */

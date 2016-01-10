@@ -23,6 +23,7 @@ class UserDao @Inject()(
   private[this] val log = LoggerFactory.getLogger(this.getClass)
   private[this] val user = Tables.User
   private[this] val consumer=Tables.Consumer
+  private[this] val pic=Tables.Pic
   private val idCacheKey = "cache.user.id."
   private val emailCacheKey = "cache.user.email."
 
@@ -126,6 +127,10 @@ class UserDao @Inject()(
       }
     }
   }
+
+//  def savePic(picId:Long,userid:Long,url:String)={
+//    db.run(pic.i)
+//  }
 
 
 
