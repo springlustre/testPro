@@ -47,8 +47,6 @@ class lecturer@Inject()(consultantDao:ConsultantDao,trainerDao: TrainerDao,
   /**获取所有的讲师*/
   def getAllLecturer=Action.async{implicit request=>
     println("getAllLecturer-------")
-//    for{con<-consultantDao.getAll
-//        train<-trainerDao.getAll}yield{
       consultantDao.getAll.flatMap{con=>
         trainerDao.getAll.flatMap{train=>
           val consultant=Future.sequence(con.map{res=>
@@ -76,7 +74,6 @@ class lecturer@Inject()(consultantDao:ConsultantDao,trainerDao: TrainerDao,
             Ok(successResult(Json.obj("data"->a)))
           }
         }
-
       }
 
 

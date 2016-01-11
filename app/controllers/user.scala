@@ -207,8 +207,16 @@ class user @Inject()(
   def getPic=Action.async{implicit request=>
     val jsonData=Json.parse(request.body.asText.get)
     val userid=(jsonData \ "userid").as[String].toLong
-
-    Future.successful(Ok(success))
+    userDao.getPicByUserId(userid).map{seq=>
+      seq.map{pic=>
+        Json.obj(
+          "picId"->pic.id,
+          "userid"->pic.userid,
+          "picUrl"->pic.url)
+      }
+    }.map{data=>
+      Ok(successResult(Json.obj("data"->data)))
+    }
   }
 
 

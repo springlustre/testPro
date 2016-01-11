@@ -73,6 +73,9 @@ class UserDao @Inject()(
     db.run(pic.map(t=>(t.userid,t.url)).returning(pic.map(_.id))+=(userid,url)).mapTo[Long]
   }
 
+  def getPicByUserId(userid:Long)={
+    db.run(pic.filter(_.userid===userid).result)
+  }
 //  def createUser(userid:Option[Long] = None,loginname:Option[String]=None,name:String,password:String,token:Option[String]=None,
 //                 phone:Option[String]=None,email:Option[String]=None,sex:Option[String]=None,birthday:Option[String]=None,
 //                 birthyear:Option[String]=None,pic:Option[String]=None)={
