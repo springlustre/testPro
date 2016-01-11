@@ -164,18 +164,19 @@ trait Tables {
   /** Entity class storing rows of table Pic
    *  @param id Database column id SqlType(BIGINT), AutoInc, PrimaryKey
    *  @param userid Database column userid SqlType(BIGINT)
-   *  @param url Database column url SqlType(VARCHAR), Length(100,true), Default() */
-  case class PicRow(id: Long, userid: Long, url: String = "")
+   *  @param url Database column url SqlType(VARCHAR), Length(100,true), Default()
+   *  @param no Database column no SqlType(INT), Default(0) */
+  case class PicRow(id: Long, userid: Long, url: String = "", no: Int = 0)
   /** GetResult implicit for fetching PicRow objects using plain SQL queries */
-  implicit def GetResultPicRow(implicit e0: GR[Long], e1: GR[String]): GR[PicRow] = GR{
+  implicit def GetResultPicRow(implicit e0: GR[Long], e1: GR[String], e2: GR[Int]): GR[PicRow] = GR{
     prs => import prs._
-    PicRow.tupled((<<[Long], <<[Long], <<[String]))
+    PicRow.tupled((<<[Long], <<[Long], <<[String], <<[Int]))
   }
   /** Table description of table pic. Objects of this class serve as prototypes for rows in queries. */
   class Pic(_tableTag: Tag) extends Table[PicRow](_tableTag, "pic") {
-    def * = (id, userid, url) <> (PicRow.tupled, PicRow.unapply)
+    def * = (id, userid, url, no) <> (PicRow.tupled, PicRow.unapply)
     /** Maps whole row to an option. Useful for outer joins. */
-    def ? = (Rep.Some(id), Rep.Some(userid), Rep.Some(url)).shaped.<>({r=>import r._; _1.map(_=> PicRow.tupled((_1.get, _2.get, _3.get)))}, (_:Any) =>  throw new Exception("Inserting into ? projection not supported."))
+    def ? = (Rep.Some(id), Rep.Some(userid), Rep.Some(url), Rep.Some(no)).shaped.<>({r=>import r._; _1.map(_=> PicRow.tupled((_1.get, _2.get, _3.get, _4.get)))}, (_:Any) =>  throw new Exception("Inserting into ? projection not supported."))
 
     /** Database column id SqlType(BIGINT), AutoInc, PrimaryKey */
     val id: Rep[Long] = column[Long]("id", O.AutoInc, O.PrimaryKey)
@@ -183,6 +184,8 @@ trait Tables {
     val userid: Rep[Long] = column[Long]("userid")
     /** Database column url SqlType(VARCHAR), Length(100,true), Default() */
     val url: Rep[String] = column[String]("url", O.Length(100,varying=true), O.Default(""))
+    /** Database column no SqlType(INT), Default(0) */
+    val no: Rep[Int] = column[Int]("no", O.Default(0))
   }
   /** Collection-like TableQuery object for table Pic */
   lazy val Pic = new TableQuery(tag => new Pic(tag))

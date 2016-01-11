@@ -69,8 +69,8 @@ class UserDao @Inject()(
     db.run(pic.filter(_.id===picId).delete)
   }
 
-  def insertPic(userid:Long,url:String)={
-    db.run(pic.map(t=>(t.userid,t.url)).returning(pic.map(_.id))+=(userid,url)).mapTo[Long]
+  def insertPic(userid:Long,url:String,no:Int)={
+    db.run(pic.map(t=>(t.userid,t.url,t.no)).returning(pic.map(_.id))+=(userid,url,no)).mapTo[Long]
   }
 
   def getPicByUserId(userid:Long)={

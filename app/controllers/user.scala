@@ -183,26 +183,16 @@ class user @Inject()(
     val jsonData=Json.parse(request.body.asText.get)
     val userid=(jsonData \ "userid").as[String].toLong
     val picUrl=(jsonData \ "picUrl").as[String]
-    val picId=(jsonData \ "picId").asOpt[Long]
-    if(picId.isDefined){
-      userDao.deletePic(picId.get)
-      userDao.insertPic(userid,picUrl).map{res=>
+    val picNo=(jsonData \ "picNo").as[String].toInt
+      userDao.insertPic(userid,picUrl,picNo).map{res=>
         if(res>0){
           Ok(success)
         }else{
           Ok(jsonResult(10000,"保存失败!"))
         }
       }
-    }else{
-      userDao.insertPic(userid,picUrl).map{res=>
-        if(res>0){
-          Ok(success)
-        }else{
-          Ok(jsonResult(10000,"保存失败!"))
-        }
-      }
-    }
   }
+
 
   def getPic=Action.async{implicit request=>
     val jsonData=Json.parse(request.body.asText.get)
@@ -212,7 +202,8 @@ class user @Inject()(
         Json.obj(
           "picId"->pic.id,
           "userid"->pic.userid,
-          "picUrl"->pic.url)
+          "picUrl"->pic.url,
+          "picNo"->pic.no)
       }
     }.map{data=>
       Ok(successResult(Json.obj("data"->data)))
