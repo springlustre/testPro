@@ -87,14 +87,14 @@ class lecturer@Inject()(consultantDao:ConsultantDao,trainerDao: TrainerDao,
    val userType=(jsonData \ "type").as[String]
    println("=============getInfo"+userid+userType)
    consultantDao.getPicByUserId(userid).flatMap { seq =>
-     val picture=seq.map{pic=> pic.url}
+     val picUrl=seq.map{pic=> pic.url}
 
      if (userType == "咨询师") {
        consultantDao.getByUserId(userid).map { res =>
          if (res.isDefined) {
            val con = res.get._1
            val user = res.get._2
-           val picUrl=Seq(con.pic)++picture
+//           val picUrl=Seq(con.pic)++picture
            Ok(successResult(Json.obj("id" -> con.userid, "name" -> user.name, "type" -> "咨询师", "introduce" -> con.introduce,
              "profield" -> con.profield.split(","), "industry" -> con.industry.split(","),
              "locationX" -> user.locationx, "locationY" -> user.locationy, "pic"->picUrl)))
@@ -107,7 +107,6 @@ class lecturer@Inject()(consultantDao:ConsultantDao,trainerDao: TrainerDao,
          if (res.isDefined) {
            val train = res.get._1
            val user = res.get._2
-           val picUrl=Seq(train.pic)++picture
            trainerDao.getCourseByUserId(userid).map{seq=>
              val courseSeq=seq.map{course=>
                Json.obj("theme"->course.theme,"target"->course.target,
