@@ -15,6 +15,7 @@ POST        /user/login                           @controllers.user.login
 POST        /user/updateLocation                  @controllers.user.updateLocation
 POST        /user/savePersonInfo                  @controllers.user.savePersonInfo
 
+
 GET         /lecturer/getAll                      @controllers.lecturer.getAllLecturer
 POST        /lecturer/getLecturerInfo             @controllers.lecturer.getLecturerInfo
 
@@ -29,9 +30,11 @@ GET         /consultant/getConsultantInfo         @controllers.lecturer.getConsu
 POST        /consultant/registerConsultant        @controllers.lecturer.registerConsultant
 POST        /consultant/registerTrainer           @controllers.lecturer.registerTrainer
 
+
 POST        /user/getConsumerInfo                 @controllers.user.getConsumerInfo
 POST        /user/registerConsumer                @controllers.user.registerConsumer
-
+POST        /user/savePic                         @controllers.user.savePic
+POST        /user/getPic                          @controllers.user.getPic
 
 
 

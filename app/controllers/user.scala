@@ -133,7 +133,7 @@ class user @Inject()(
   }
 
 
-  /**get consumer info*/
+  /**个人信息页 get consumer info*/
   def getConsumerInfo=Action.async{implicit request=>
     val jsonData=Json.parse(request.body.asText.get)
     println(jsonData)
@@ -176,13 +176,40 @@ class user @Inject()(
 
 
 
+
+
   /**保存图片到pic*/
-//  def savePic=Action.async{implicit request=>
-//    val jsonData=Json.parse(request.body.asText.get)
-//    val userid=(jsonData \ "userid").as[String].toLong
-//    val picUrl=(jsonData \ "picUrl").as[String]
-//
-//  }
+  def savePic=Action.async{implicit request=>
+    val jsonData=Json.parse(request.body.asText.get)
+    val userid=(jsonData \ "userid").as[String].toLong
+    val picUrl=(jsonData \ "picUrl").as[String]
+    val picId=(jsonData \ "picId").asOpt[Long]
+    if(picId.isDefined){
+      userDao.deletePic(picId.get)
+      userDao.insertPic(userid,picUrl).map{res=>
+        if(res>0){
+          Ok(success)
+        }else{
+          Ok(jsonResult(10000,"保存失败!"))
+        }
+      }
+    }else{
+      userDao.insertPic(userid,picUrl).map{res=>
+        if(res>0){
+          Ok(success)
+        }else{
+          Ok(jsonResult(10000,"保存失败!"))
+        }
+      }
+    }
+  }
+
+  def getPic=Action.async{implicit request=>
+    val jsonData=Json.parse(request.body.asText.get)
+    val userid=(jsonData \ "userid").as[String].toLong
+
+    Future.successful(Ok(success))
+  }
 
 
   /**修改登陆信息

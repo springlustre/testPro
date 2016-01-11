@@ -47,21 +47,38 @@ class lecturer@Inject()(consultantDao:ConsultantDao,trainerDao: TrainerDao,
   /**获取所有的讲师*/
   def getAllLecturer=Action.async{implicit request=>
     println("getAllLecturer-------")
-    for{con<-consultantDao.getAll
-        train<-trainerDao.getAll}yield{
-        val consultant=con.map{res=>
-          val con=res._1
-          val user=res._2
-          Json.obj("id"->con.userid,"name"->user.name,"type"->"咨询师","pic"->con.pic,"content"->con.introduce)
+//    for{con<-consultantDao.getAll
+//        train<-trainerDao.getAll}yield{
+      consultantDao.getAll.flatMap{con=>
+        trainerDao.getAll.flatMap{train=>
+          val consultant=Future.sequence(con.map{res=>
+            val con=res._1
+            val user=res._2
+            val conPic=consultantDao.getPicByUserId(user.id).map { seq => seq.headOption }
+            conPic.map{pic=>
+              Json.obj("id" -> con.userid, "name" -> user.name, "type" -> "咨询师", "pic" -> con.pic, "content" -> con.introduce)
+            }
+          })
+
+          val trainer=Future.sequence(train.map{res=>
+            val train=res._1
+            val user=res._2
+            val trainPic=consultantDao.getPicByUserId(user.id).map { seq => seq.headOption }
+            trainPic.map{pic=>
+              Json.obj("id"->train.userid,"name"->user.name,"type"->"培训师","pic"->train.pic,"content"->train.introduce)
+            }
+          })
+
+          for{con<-consultant
+            train<-trainer
+          }yield{
+            val a=con++train
+            Ok(successResult(Json.obj("data"->a)))
+          }
         }
-       val trainer=train.map{res=>
-         val train=res._1
-         val user=res._2
-         Json.obj("id"->train.userid,"name"->user.name,"type"->"培训师","pic"->train.pic,"content"->train.introduce)
-       }
-      val a=consultant++trainer
-      Ok(successResult(Json.obj("data"->a)))
-    }
+
+      }
+
 
   }
 
@@ -154,43 +171,10 @@ class lecturer@Inject()(consultantDao:ConsultantDao,trainerDao: TrainerDao,
     }
   }
 
-  /**get consumer info*/
-  def getConsumerInfo(userid:Long)=Action.async{implicit request=>
-    userDao.getConsumer(userid).map{res=>
-      if(res.isDefined){
-        Ok(successResult(Json.obj(
-          "id"->res.get.id,
-          "userid"->res.get.userid,
-          "profession"->res.get.profession,
-          "company"->res.get.company,
-          "position"->res.get.position,
-          "site"->res.get.site,
-          "introduce"->res.get.introduce
-           )))
-      }else{
-        Ok(jsonResult(10000,"获取失败！"))
-      }
-    }
-  }
 
-  /**register consumer*/
-  def registerConsumer=Action.async{implicit  request=>
-    val jsonData=Json.parse(request.body.asText.get)
-    val userid=(jsonData \ "userid").as[String].toLong
-    val introduce=(jsonData \ "introduce").as[String]
-    val profession=(jsonData \ "profession").as[String]
-    val company=(jsonData \ "company").as[String]
-    val position=(jsonData \ "position").as[String]
-    val place=(jsonData \ "place").as[String]
-    println(jsonData)
-    userDao.updateConsumer(userid,introduce,profession,company,position,place).map{res=>
-      if(res>0L){
-        Ok(success)
-      }else{
-        Ok(jsonResult(10011,"保存失败！"))
-      }
-    }
-  }
+
+
+
 
 
 

@@ -64,6 +64,15 @@ class UserDao @Inject()(
     ))
   }
 
+  /**pic操作*/
+  def deletePic(picId:Long)={
+    db.run(pic.filter(_.id===picId).delete)
+  }
+
+  def insertPic(userid:Long,url:String)={
+    db.run(pic.map(t=>(t.userid,t.url)).returning(pic.map(_.id))+=(userid,url)).mapTo[Long]
+  }
+
 //  def createUser(userid:Option[Long] = None,loginname:Option[String]=None,name:String,password:String,token:Option[String]=None,
 //                 phone:Option[String]=None,email:Option[String]=None,sex:Option[String]=None,birthday:Option[String]=None,
 //                 birthyear:Option[String]=None,pic:Option[String]=None)={
