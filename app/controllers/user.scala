@@ -92,6 +92,36 @@ class user @Inject()(
     //Future.successful(Ok(success))
   }
 
+  /**修改用户头像*/
+  def updateUserPhoto=Action.async {implicit request=>
+    val jsonData=Json.parse(request.body.asText.get)
+    val userid=(jsonData \ "userid").as[String].toLong
+    val picUrl=(jsonData \ "picUrl").as[String]
+    userDao.updateUserPhoto(userid,picUrl).map{res=>
+      if(res>0){
+        Ok(success)
+      }else{
+        Ok(jsonResult(10000,"修改头像失败！"))
+      }
+    }
+  }
+
+  def getUserPhoto=Action.async{implicit request=>
+    val jsonData=Json.parse(request.body.asText.get)
+    val userid=(jsonData \ "userid").as[String].toLong
+    userDao.getUserPhoto(userid).map{res=>
+      if(res.isDefined){
+        Ok(successResult(Json.obj(
+          "pic"->res.get
+        )))
+      }else{
+        Ok(successResult(Json.obj(
+          "pic"->"http://a7d81dff66cf35d21a1c.b0.upaiyun.com/apicloud/fbd830eea7e739b66bb0554f49692613.png"
+        )))
+      }
+    }
+  }
+
   /**
    * 获取单个用户信息
    * */
@@ -209,6 +239,19 @@ class user @Inject()(
       Ok(successResult(Json.obj("data"->data)))
     }
   }
+
+  /**接受lecture*/
+//  def acceptLecture=Action.async{implicit request=>
+//    val jsonData=Json.parse(request.body.asText.get)
+//    val userid=(jsonData \ "userid").as[String].toLong
+//    val lectureUId=(jsonData \ "lectureUId").as[String].toLong
+//
+//  }
+
+
+
+
+
 
 
   /**修改登陆信息

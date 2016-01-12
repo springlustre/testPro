@@ -64,6 +64,14 @@ class UserDao @Inject()(
     ))
   }
 
+  //头像
+  def updateUserPhoto(userid:Long,url:String)={
+    db.run(user.filter(_.id===userid).map(_.pic).update(url))
+  }
+  def getUserPhoto(userid:Long)={
+    db.run(user.filter(_.id===userid).map(_.pic).result.headOption)
+  }
+
   /**pic操作*/
   def deletePic(picId:Long)={
     db.run(pic.filter(_.id===picId).delete)

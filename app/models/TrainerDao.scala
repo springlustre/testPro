@@ -36,6 +36,13 @@ class TrainerDao @Inject()(protected val dbConfigProvider:DatabaseConfigProvider
     db.run(trainer.join(user).on(_.userid===_.id).result)
   }
 
+  /**根据距离获取*/
+  def getByLocation(locationX:Double,locationY:Double,distance:Int)={
+    db.run(consultant.join(user).on(_.userid===_.id).filter(t=>
+      ((t._2.locationx-locationX)*(t._2.locationx-locationX)+(t._2.locationy-locationY)*(t._2.locationy-locationY))<
+        distance*distance.toDouble).result)
+  }
+
   /**根据用户id查询*/
   def getByUserId(userid:Long)={
     db.run(trainer.filter(_.userid===userid).join(user).on(_.userid===_.id).result.headOption)

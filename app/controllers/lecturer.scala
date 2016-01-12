@@ -76,8 +76,47 @@ class lecturer@Inject()(consultantDao:ConsultantDao,trainerDao: TrainerDao,
         }
       }
 
-
   }
+
+  /**列表*/
+  def getLectureList=Action.async{implicit request=>
+   // val jsonData=Json.parse(request.body.asText.get)
+    val jsonData=Json.obj("userid"->"15","locationX"->"39.982259","locationY"->"116.356217","distance"->"10")
+    val userid=(jsonData \ "userid").as[String].toLong
+    val locationX=(jsonData \ "locationX").as[String].toDouble
+    val locationY=(jsonData \ "locationY").as[String].toDouble
+    val distance=(jsonData \ "distance").as[String].toInt
+    consultantDao.getByLocation(locationX,locationY,distance).flatMap{con=>
+      trainerDao.getByLocation(locationX,locationY,distance).flatMap{train=>
+        val consultant=Future.sequence(con.map{res=>
+          val con=res._1
+          val user=res._2
+          val conPic=consultantDao.getPicByUserId(user.id).map { seq => seq.headOption }
+          conPic.map{pic=>
+            Json.obj("id" -> con.userid, "name" -> user.name, "type" -> "咨询师", "pic" -> con.pic, "content" -> con.introduce)
+          }
+        })
+
+        val trainer=Future.sequence(train.map{res=>
+          val train=res._1
+          val user=res._2
+          val trainPic=consultantDao.getPicByUserId(user.id).map { seq => seq.headOption }
+          trainPic.map{pic=>
+            Json.obj("id"->train.userid,"name"->user.name,"type"->"培训师","pic"->train.pic,"content"->train.introduce)
+          }
+        })
+
+        for{con<-consultant
+            train<-trainer
+        }yield{
+          val a=con++train
+          Ok(successResult(Json.obj("data"->a)))
+        }
+      }
+    }
+  }
+
+
 
 
  /**获取某个lecturer的信息*/
