@@ -62,7 +62,7 @@ class user @Inject()(
     val jsonData=Json.parse(request.body.asText.get)
     val loginname=(jsonData \ "loginname").as[String]
     val password=(jsonData \ "password").as[String]
-    println(loginname+password)
+//    println(loginname+password)
     userDao.login(loginname,password).map{res=>
       if(res.isDefined){
         Ok(successResult(Json.obj("data"->res.get)))
@@ -75,13 +75,13 @@ class user @Inject()(
   /**更新位置信息*/
   def updateLocation=Action.async{implicit request=>
     val jsonData=Json.parse(request.body.asText.get)
-    println(jsonData)
+//    println(jsonData)
     val userid=(jsonData \ "userid").as[String].toLong
     val locationX=(jsonData \ "locationX").as[Double]
     val locationY=(jsonData \ "locationY").as[Double]
     val time=(jsonData \ "updateTime").as[String]
     val updateTime=toTimeStamp(time)
-    println("---------"+locationX+updateTime)
+//    println("---------"+locationX+updateTime)
     userDao.updateLocation(userid,locationX,locationY,updateTime).map{res=>
       if(res>0){
         Ok(successResult(Json.obj("data"->"更新位置成功！")))
@@ -166,7 +166,7 @@ class user @Inject()(
   /**个人信息页 get consumer info*/
   def getConsumerInfo=Action.async{implicit request=>
     val jsonData=Json.parse(request.body.asText.get)
-    println(jsonData)
+//    println(jsonData)
     val userid=(jsonData \ "userid").as[String].toLong
     userDao.getConsumer(userid).map{res=>
       if(res.isDefined){
@@ -193,7 +193,7 @@ class user @Inject()(
     val company=(jsonData \ "company").as[String]
     val position=(jsonData \ "position").as[String]
     val place=(jsonData \ "place").as[String]
-    println(jsonData)
+//    println(jsonData)
     userDao.updateConsumer(userid,introduce,profession,company,position,place).map{res=>
       if(res>0L){
         Ok(success)
@@ -213,7 +213,8 @@ class user @Inject()(
     val jsonData=Json.parse(request.body.asText.get)
     val userid=(jsonData \ "userid").as[String].toLong
     val picUrl=(jsonData \ "picUrl").as[String]
-    val picNo=(jsonData \ "picNo").as[String].toInt
+    val picNo=(jsonData \ "picNo").as[Int]
+//      println("-----pic"+jsonData)
       userDao.insertPic(userid,picUrl,picNo).map{res=>
         if(res>0){
           Ok(success)
@@ -226,6 +227,7 @@ class user @Inject()(
 
   def getPic=Action.async{implicit request=>
     val jsonData=Json.parse(request.body.asText.get)
+//    println("getpic=========="+jsonData)
     val userid=(jsonData \ "userid").as[String].toLong
     userDao.getPicByUserId(userid).map{seq=>
       seq.map{pic=>

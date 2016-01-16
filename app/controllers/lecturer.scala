@@ -46,7 +46,7 @@ class lecturer@Inject()(consultantDao:ConsultantDao,trainerDao: TrainerDao,
 
   /**获取所有的讲师*/
   def getAllLecturer=Action.async{implicit request=>
-    println("getAllLecturer-------")
+//    println("getAllLecturer-------")
       consultantDao.getAll.flatMap{con=>
         trainerDao.getAll.flatMap{train=>
           val consultant=Future.sequence(con.map{res=>
@@ -124,7 +124,7 @@ class lecturer@Inject()(consultantDao:ConsultantDao,trainerDao: TrainerDao,
    val jsonData=Json.parse(request.body.asText.get)
    val userid=(jsonData \ "userid").as[String].toLong
    val userType=(jsonData \ "type").as[String]
-   println("=============getInfo"+userid+userType)
+//   println("=============getInfo"+userid+userType)
    consultantDao.getPicByUserId(userid).flatMap { seq =>
      val picUrl=seq.map{pic=> pic.url}
 
