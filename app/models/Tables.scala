@@ -14,9 +14,44 @@ trait Tables {
   import slick.jdbc.{GetResult => GR}
 
   /** DDL for all tables. Call .create to execute. */
-  lazy val schema = Array(Consultant.schema, Consumer.schema, Course.schema, History.schema, Pic.schema, Picture.schema, Trainer.schema, User.schema).reduceLeft(_ ++ _)
+  lazy val schema = Array(Collection.schema, Consultant.schema, Consumer.schema, Course.schema, History.schema, Pic.schema, Picture.schema, Trainer.schema, User.schema).reduceLeft(_ ++ _)
   @deprecated("Use .schema instead of .ddl", "3.0")
   def ddl = schema
+
+  /** Entity class storing rows of table Collection
+   *  @param id Database column id SqlType(BIGINT), AutoInc, PrimaryKey
+   *  @param userid Database column userid SqlType(BIGINT)
+   *  @param collectId Database column collect_id SqlType(BIGINT), Default(None)
+   *  @param collectType Database column collect_type SqlType(INT), Default(None)
+   *  @param collectName Database column collect_name SqlType(VARCHAR), Length(50,true)
+   *  @param createtime Database column createTime SqlType(BIGINT) */
+  case class CollectionRow(id: Long, userid: Long, collectId: Option[Long] = None, collectType: Option[Int] = None, collectName: String, createtime: Long)
+  /** GetResult implicit for fetching CollectionRow objects using plain SQL queries */
+  implicit def GetResultCollectionRow(implicit e0: GR[Long], e1: GR[Option[Long]], e2: GR[Option[Int]], e3: GR[String]): GR[CollectionRow] = GR{
+    prs => import prs._
+    CollectionRow.tupled((<<[Long], <<[Long], <<?[Long], <<?[Int], <<[String], <<[Long]))
+  }
+  /** Table description of table collection. Objects of this class serve as prototypes for rows in queries. */
+  class Collection(_tableTag: Tag) extends Table[CollectionRow](_tableTag, "collection") {
+    def * = (id, userid, collectId, collectType, collectName, createtime) <> (CollectionRow.tupled, CollectionRow.unapply)
+    /** Maps whole row to an option. Useful for outer joins. */
+    def ? = (Rep.Some(id), Rep.Some(userid), collectId, collectType, Rep.Some(collectName), Rep.Some(createtime)).shaped.<>({r=>import r._; _1.map(_=> CollectionRow.tupled((_1.get, _2.get, _3, _4, _5.get, _6.get)))}, (_:Any) =>  throw new Exception("Inserting into ? projection not supported."))
+
+    /** Database column id SqlType(BIGINT), AutoInc, PrimaryKey */
+    val id: Rep[Long] = column[Long]("id", O.AutoInc, O.PrimaryKey)
+    /** Database column userid SqlType(BIGINT) */
+    val userid: Rep[Long] = column[Long]("userid")
+    /** Database column collect_id SqlType(BIGINT), Default(None) */
+    val collectId: Rep[Option[Long]] = column[Option[Long]]("collect_id", O.Default(None))
+    /** Database column collect_type SqlType(INT), Default(None) */
+    val collectType: Rep[Option[Int]] = column[Option[Int]]("collect_type", O.Default(None))
+    /** Database column collect_name SqlType(VARCHAR), Length(50,true) */
+    val collectName: Rep[String] = column[String]("collect_name", O.Length(50,varying=true))
+    /** Database column createTime SqlType(BIGINT) */
+    val createtime: Rep[Long] = column[Long]("createTime")
+  }
+  /** Collection-like TableQuery object for table Collection */
+  lazy val Collection = new TableQuery(tag => new Collection(tag))
 
   /** Entity class storing rows of table Consultant
    *  @param id Database column id SqlType(BIGINT), AutoInc, PrimaryKey

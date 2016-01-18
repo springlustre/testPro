@@ -211,17 +211,30 @@ class user @Inject()(
   /**保存图片到pic*/
   def savePic=Action.async{implicit request=>
     val jsonData=Json.parse(request.body.asText.get)
+//    val jsonData=Json.obj("userid"->"10","picUrl"->"111111","picNo"->1)
     val userid=(jsonData \ "userid").as[String].toLong
     val picUrl=(jsonData \ "picUrl").as[String]
     val picNo=(jsonData \ "picNo").as[Int]
 //      println("-----pic"+jsonData)
-      userDao.insertPic(userid,picUrl,picNo).map{res=>
-        if(res>0){
-          Ok(success)
-        }else{
-          Ok(jsonResult(10000,"保存失败!"))
+    userDao.getPicByUserNo(userid,picNo).flatMap{res=>
+      if(res.isDefined){
+        userDao.updatePic(res.get,picUrl).map{res=>
+          if(res>0){
+            Ok(success)
+          }else{
+            Ok(jsonResult(10000,"保存失败!"))
+          }
+        }
+      }else{
+        userDao.insertPic(userid,picUrl,picNo).map{res=>
+          if(res>0){
+            Ok(success)
+          }else{
+            Ok(jsonResult(10000,"保存失败!"))
+          }
         }
       }
+    }
   }
 
 
@@ -247,7 +260,10 @@ class user @Inject()(
 //    val jsonData=Json.parse(request.body.asText.get)
 //    val userid=(jsonData \ "userid").as[String].toLong
 //    val lectureUId=(jsonData \ "lectureUId").as[String].toLong
-//
+//    val collectName=(jsonData \ "collectName").as[String]
+//    val collectType=(jsonData \ "type").as[String]
+//    var createTime=System.currentTimeMillis()
+//    userDao
 //  }
 
 
