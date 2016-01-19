@@ -337,6 +337,14 @@ class user @Inject()(
 
   }
 
+  //getChat TODO
+
+  //根据imUserid获得user TODO
+
+
+  //
+
+
 
 
 

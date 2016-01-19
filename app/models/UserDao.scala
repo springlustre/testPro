@@ -25,6 +25,7 @@ class UserDao @Inject()(
   private[this] val consumer=Tables.Consumer
   private[this] val pic=Tables.Pic
   private[this] val collect=Tables.Collection
+  private[this] val chat=Tables.Chat
   private val idCacheKey = "cache.user.id."
   private val emailCacheKey = "cache.user.email."
 
@@ -151,7 +152,9 @@ class UserDao @Inject()(
 
 
   /**chat*/
-  def insertChat(userid:Long,chatUserid:Long,chatImUserid:String,lastMsg:String,)
+  def insertChat(userid:Long,chatUserid:Long,chatImUserid:String,lastMsg:String,updateTime:Long)={
+    db.run(chat.filter(t=>(t.)))
+  }
 
 
 
