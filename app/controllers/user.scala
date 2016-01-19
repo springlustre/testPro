@@ -215,22 +215,49 @@ class user @Inject()(
     val userid=(jsonData \ "userid").as[String].toLong
     val picUrl=(jsonData \ "picUrl").as[String]
     val picNo=(jsonData \ "picNo").as[Int]
-//      println("-----pic"+jsonData)
-    userDao.getPicByUserNo(userid,picNo).flatMap{res=>
-      if(res.isDefined){
-        userDao.updatePic(res.get,picUrl).map{res=>
-          if(res>0){
-            Ok(success)
-          }else{
-            Ok(jsonResult(10000,"保存失败!"))
+    if(picNo==1){
+      userDao.updateUserPhoto(userid,picUrl).flatMap{r=>
+        if(r>1){
+          userDao.getPicByUserNo(userid,picNo).flatMap{res=>
+            if(res.isDefined){
+              userDao.updatePic(res.get,picUrl).map{res=>
+                if(res>0){
+                  Ok(success)
+                }else{
+                  Ok(jsonResult(10000,"保存失败!"))
+                }
+              }
+            }else{
+              userDao.insertPic(userid,picUrl,picNo).map{res=>
+                if(res>0){
+                  Ok(success)
+                }else{
+                  Ok(jsonResult(10000,"保存失败!"))
+                }
+              }
+            }
           }
+        }else{
+          Future.successful(Ok(jsonResult(10000,"保存失败!")))
         }
-      }else{
-        userDao.insertPic(userid,picUrl,picNo).map{res=>
-          if(res>0){
-            Ok(success)
-          }else{
-            Ok(jsonResult(10000,"保存失败!"))
+      }
+    }else {
+      userDao.getPicByUserNo(userid, picNo).flatMap { res =>
+        if (res.isDefined) {
+          userDao.updatePic(res.get, picUrl).map { res =>
+            if (res > 0) {
+              Ok(success)
+            } else {
+              Ok(jsonResult(10000, "保存失败!"))
+            }
+          }
+        } else {
+          userDao.insertPic(userid, picUrl, picNo).map { res =>
+            if (res > 0) {
+              Ok(success)
+            } else {
+              Ok(jsonResult(10000, "保存失败!"))
+            }
           }
         }
       }
@@ -256,61 +283,63 @@ class user @Inject()(
   }
 
   /**接受lecture*/
-//  def acceptLecture=Action.async{implicit request=>
-//    val jsonData=Json.parse(request.body.asText.get)
-//    val userid=(jsonData \ "userid").as[String].toLong
-//    val lectureUId=(jsonData \ "lectureUId").as[String].toLong
-//    val collectName=(jsonData \ "collectName").as[String]
-//    val collectType=(jsonData \ "type").as[String]
-//    var createTime=System.currentTimeMillis()
-//    userDao
-//  }
+  def acceptLecture=Action.async{implicit request=>
+    //val jsonData=Json.obj("userid"->"15","lectureUId"->"13","collectName"->"aaa","type"->"1")//
+    val jsonData=Json.parse(request.body.asText.get)
+    val userid=(jsonData \ "userid").as[String].toLong
+    val lectureUId=(jsonData \ "lectureUId").as[String].toLong
+    val collectName=(jsonData \ "collectName").as[String]
+    val collectType=(jsonData \ "type").as[String].toInt
+    var createTime=System.currentTimeMillis()
+    userDao.collectLecture(userid,lectureUId,collectType,collectName,createTime).map{
+      case res:Int =>
+        if(res>0) Ok(successResult(Json.obj("data"->"已收藏")))
+        else Ok(jsonResult(10000,"操作失败！"))
+      case res:Long =>
+        if(res>0L){
+          Ok(successResult(Json.obj("data"->"收藏成功！")))
+        }else{
+        Ok(jsonResult(10000,"操作失败！"))
+        }
+    }
+  }
+
+
+  def getCollection=Action.async{implicit request=>
+    val jsonData=Json.parse(request.body.asText.get)
+//    val jsonData=Json.obj("userid"->"15")
+    val userid=(jsonData \ "userid").as[String].toLong
+    userDao.getCollect(userid).map{res=>
+      val data=res.map{collect=>
+        Json.obj(
+        "collectId"->collect._1.collectId,
+        "collectType"->collect._1.collectType,
+        "collectName"->collect._1.collectName,
+        "imUserid"->collect._2.imuserid,
+        "pic"->collect._2.pic
+        )
+      }
+      Ok(successResult(Json.obj("data"->data)))
+    }
+  }
 
 
 
 
+  /**chat*/
+  def insertChat=Action.async{implicit request=>
+    val jsonData=Json.parse(request.body.asText.get)
+    val userid=(jsonData \ "userid").as[String].toLong
+    val chatUserid=(jsonData \ "chatUserid").as[String].toLong
+    val chatImUserid=(jsonData \ "chatImUserid").as[String]
+    val lastMsg=(jsonData \ "lastMsg").as[String]
+    val updateTime=System.currentTimeMillis()
+
+  }
 
 
 
-  /**修改登陆信息
-  * */
-//  def updateLoginInfo=Action.async{request=>
-//    val jsonData=request.body.asJson.get
-//    val userId=(jsonData \ "userId").as[Long]
-//    val loginname=(jsonData \ "loginname").asOpt[String]
-//    val name=(jsonData \ "name").as[String]
-//    val token=(jsonData \ "token").asOpt[String]
-//    val phone=(jsonData \ "phone").asOpt[String]
-//    val email=(jsonData \ "email").asOpt[String]
-//
-//    userDao.updateLoginInfo(userId,loginname,name,token,phone,email).map{res=>
-//      if(res==1){
-//        Ok(success)
-//      }else{
-//        Ok(jsonResult(10001,"failed"))
-//      }
-//    }
-//  }
-//
-//  /**修改资料
-//   * @return
-//   */
-//  def modifyUserInfo=Action.async{request=>
-//    val jsonData=request.body.asJson.get
-//    val userId=(jsonData \ "userId").as[Long]
-//    val sex=(jsonData \ "loginname").asOpt[String]
-//    val birthday=(jsonData \ "name").asOpt[String]
-//    val birthyear=(jsonData \ "token").asOpt[String]
-//    val pic=(jsonData \ "phone").asOpt[String]
-//
-//    userDao.modefyUserInfo(userId,sex,birthday,birthyear,pic).map{res=>
-//      if(res==1){
-//        Ok(success)
-//      }else{
-//        Ok(jsonResult(10002,"failed"))
-//      }
-//    }
-//  }
+
 
 
 

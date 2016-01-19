@@ -40,7 +40,8 @@ POST        /user/registerConsumer                @controllers.user.registerCons
 POST        /user/savePic                         @controllers.user.savePic
 POST        /user/getPic                          @controllers.user.getPic
 
-
+POST        /user/acceptLecture                   @controllers.user.acceptLecture
+POST        /user/getCollection                   @controllers.user.getCollection
 
 
 

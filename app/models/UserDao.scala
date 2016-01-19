@@ -24,6 +24,7 @@ class UserDao @Inject()(
   private[this] val user = Tables.User
   private[this] val consumer=Tables.Consumer
   private[this] val pic=Tables.Pic
+  private[this] val collect=Tables.Collection
   private val idCacheKey = "cache.user.id."
   private val emailCacheKey = "cache.user.email."
 
@@ -131,6 +132,26 @@ class UserDao @Inject()(
   }
 
 /**collect*/
+  def collectLecture(userid:Long,collectId:Long,collectType:Int,collectName:String,
+                      createTime:Long)={
+    db.run(collect.filter(t=>(t.userid===userid&&t.collectId===collectId&&t.collectType===collectType)).
+        map(_.id).result.headOption).flatMap{res=>
+      if(res.isDefined){
+        db.run(collect.filter(_.id===res.get).map(_.createtime).update(createTime))
+      }else{
+      db.run(collect.map(t=>(t.userid,t.collectId,t.collectType,t.collectName,t.createtime)).returning(
+        collect.map(_.id))+=(userid,collectId,collectType,collectName,createTime))
+      }
+    }
+  }
+
+  def getCollect(userid:Long)={
+    db.run(collect.filter(_.userid===userid).join(user).on(_.collectId===_.id).result)
+  }
+
+
+  /**chat*/
+  def insertChat(userid:Long,chatUserid:Long,chatImUserid:String,lastMsg:String,)
 
 
 

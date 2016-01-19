@@ -14,37 +14,72 @@ trait Tables {
   import slick.jdbc.{GetResult => GR}
 
   /** DDL for all tables. Call .create to execute. */
-  lazy val schema = Array(Collection.schema, Consultant.schema, Consumer.schema, Course.schema, History.schema, Pic.schema, Picture.schema, Trainer.schema, User.schema).reduceLeft(_ ++ _)
+  lazy val schema = Array(Chat.schema, Collection.schema, Consultant.schema, Consumer.schema, Course.schema, History.schema, Pic.schema, Picture.schema, Trainer.schema, User.schema).reduceLeft(_ ++ _)
   @deprecated("Use .schema instead of .ddl", "3.0")
   def ddl = schema
+
+  /** Entity class storing rows of table Chat
+   *  @param id Database column id SqlType(BIGINT), AutoInc, PrimaryKey
+   *  @param userid Database column userid SqlType(BIGINT), Default(0)
+   *  @param chatUserid Database column chat_userid SqlType(BIGINT), Default(0)
+   *  @param chatImUserid Database column chat_im_userid SqlType(VARCHAR), Length(255,true), Default()
+   *  @param updateTime Database column update_time SqlType(BIGINT), Default(0)
+   *  @param lastmsg Database column lastMsg SqlType(VARCHAR), Length(255,true) */
+  case class ChatRow(id: Long, userid: Long = 0L, chatUserid: Long = 0L, chatImUserid: String = "", updateTime: Long = 0L, lastmsg: String)
+  /** GetResult implicit for fetching ChatRow objects using plain SQL queries */
+  implicit def GetResultChatRow(implicit e0: GR[Long], e1: GR[String]): GR[ChatRow] = GR{
+    prs => import prs._
+    ChatRow.tupled((<<[Long], <<[Long], <<[Long], <<[String], <<[Long], <<[String]))
+  }
+  /** Table description of table chat. Objects of this class serve as prototypes for rows in queries. */
+  class Chat(_tableTag: Tag) extends Table[ChatRow](_tableTag, "chat") {
+    def * = (id, userid, chatUserid, chatImUserid, updateTime, lastmsg) <> (ChatRow.tupled, ChatRow.unapply)
+    /** Maps whole row to an option. Useful for outer joins. */
+    def ? = (Rep.Some(id), Rep.Some(userid), Rep.Some(chatUserid), Rep.Some(chatImUserid), Rep.Some(updateTime), Rep.Some(lastmsg)).shaped.<>({r=>import r._; _1.map(_=> ChatRow.tupled((_1.get, _2.get, _3.get, _4.get, _5.get, _6.get)))}, (_:Any) =>  throw new Exception("Inserting into ? projection not supported."))
+
+    /** Database column id SqlType(BIGINT), AutoInc, PrimaryKey */
+    val id: Rep[Long] = column[Long]("id", O.AutoInc, O.PrimaryKey)
+    /** Database column userid SqlType(BIGINT), Default(0) */
+    val userid: Rep[Long] = column[Long]("userid", O.Default(0L))
+    /** Database column chat_userid SqlType(BIGINT), Default(0) */
+    val chatUserid: Rep[Long] = column[Long]("chat_userid", O.Default(0L))
+    /** Database column chat_im_userid SqlType(VARCHAR), Length(255,true), Default() */
+    val chatImUserid: Rep[String] = column[String]("chat_im_userid", O.Length(255,varying=true), O.Default(""))
+    /** Database column update_time SqlType(BIGINT), Default(0) */
+    val updateTime: Rep[Long] = column[Long]("update_time", O.Default(0L))
+    /** Database column lastMsg SqlType(VARCHAR), Length(255,true) */
+    val lastmsg: Rep[String] = column[String]("lastMsg", O.Length(255,varying=true))
+  }
+  /** Collection-like TableQuery object for table Chat */
+  lazy val Chat = new TableQuery(tag => new Chat(tag))
 
   /** Entity class storing rows of table Collection
    *  @param id Database column id SqlType(BIGINT), AutoInc, PrimaryKey
    *  @param userid Database column userid SqlType(BIGINT)
-   *  @param collectId Database column collect_id SqlType(BIGINT), Default(None)
-   *  @param collectType Database column collect_type SqlType(INT), Default(None)
+   *  @param collectId Database column collect_id SqlType(BIGINT)
+   *  @param collectType Database column collect_type SqlType(INT)
    *  @param collectName Database column collect_name SqlType(VARCHAR), Length(50,true)
    *  @param createtime Database column createTime SqlType(BIGINT) */
-  case class CollectionRow(id: Long, userid: Long, collectId: Option[Long] = None, collectType: Option[Int] = None, collectName: String, createtime: Long)
+  case class CollectionRow(id: Long, userid: Long, collectId: Long, collectType: Int, collectName: String, createtime: Long)
   /** GetResult implicit for fetching CollectionRow objects using plain SQL queries */
-  implicit def GetResultCollectionRow(implicit e0: GR[Long], e1: GR[Option[Long]], e2: GR[Option[Int]], e3: GR[String]): GR[CollectionRow] = GR{
+  implicit def GetResultCollectionRow(implicit e0: GR[Long], e1: GR[Int], e2: GR[String]): GR[CollectionRow] = GR{
     prs => import prs._
-    CollectionRow.tupled((<<[Long], <<[Long], <<?[Long], <<?[Int], <<[String], <<[Long]))
+    CollectionRow.tupled((<<[Long], <<[Long], <<[Long], <<[Int], <<[String], <<[Long]))
   }
   /** Table description of table collection. Objects of this class serve as prototypes for rows in queries. */
   class Collection(_tableTag: Tag) extends Table[CollectionRow](_tableTag, "collection") {
     def * = (id, userid, collectId, collectType, collectName, createtime) <> (CollectionRow.tupled, CollectionRow.unapply)
     /** Maps whole row to an option. Useful for outer joins. */
-    def ? = (Rep.Some(id), Rep.Some(userid), collectId, collectType, Rep.Some(collectName), Rep.Some(createtime)).shaped.<>({r=>import r._; _1.map(_=> CollectionRow.tupled((_1.get, _2.get, _3, _4, _5.get, _6.get)))}, (_:Any) =>  throw new Exception("Inserting into ? projection not supported."))
+    def ? = (Rep.Some(id), Rep.Some(userid), Rep.Some(collectId), Rep.Some(collectType), Rep.Some(collectName), Rep.Some(createtime)).shaped.<>({r=>import r._; _1.map(_=> CollectionRow.tupled((_1.get, _2.get, _3.get, _4.get, _5.get, _6.get)))}, (_:Any) =>  throw new Exception("Inserting into ? projection not supported."))
 
     /** Database column id SqlType(BIGINT), AutoInc, PrimaryKey */
     val id: Rep[Long] = column[Long]("id", O.AutoInc, O.PrimaryKey)
     /** Database column userid SqlType(BIGINT) */
     val userid: Rep[Long] = column[Long]("userid")
-    /** Database column collect_id SqlType(BIGINT), Default(None) */
-    val collectId: Rep[Option[Long]] = column[Option[Long]]("collect_id", O.Default(None))
-    /** Database column collect_type SqlType(INT), Default(None) */
-    val collectType: Rep[Option[Int]] = column[Option[Int]]("collect_type", O.Default(None))
+    /** Database column collect_id SqlType(BIGINT) */
+    val collectId: Rep[Long] = column[Long]("collect_id")
+    /** Database column collect_type SqlType(INT) */
+    val collectType: Rep[Int] = column[Int]("collect_type")
     /** Database column collect_name SqlType(VARCHAR), Length(50,true) */
     val collectName: Rep[String] = column[String]("collect_name", O.Length(50,varying=true))
     /** Database column createTime SqlType(BIGINT) */
@@ -298,18 +333,19 @@ trait Tables {
    *  @param createtime Database column createTime SqlType(BIGINT), Default(0)
    *  @param updatetime Database column updateTime SqlType(BIGINT), Default(0)
    *  @param locationx Database column locationX SqlType(DOUBLE), Default(0.0)
-   *  @param locationy Database column locationY SqlType(DOUBLE), Default(0.0) */
-  case class UserRow(id: Long, loginname: String = "", name: String = "", password: String = "", token: String = "", phone: String = "", email: String = "", sex: String = "", birthday: String = "", pic: String = "", imtoken: String = "", createtime: Long = 0L, updatetime: Long = 0L, locationx: Double = 0.0, locationy: Double = 0.0)
+   *  @param locationy Database column locationY SqlType(DOUBLE), Default(0.0)
+   *  @param imuserid Database column imUserid SqlType(VARCHAR), Length(255,true), Default() */
+  case class UserRow(id: Long, loginname: String = "", name: String = "", password: String = "", token: String = "", phone: String = "", email: String = "", sex: String = "", birthday: String = "", pic: String = "", imtoken: String = "", createtime: Long = 0L, updatetime: Long = 0L, locationx: Double = 0.0, locationy: Double = 0.0, imuserid: String = "")
   /** GetResult implicit for fetching UserRow objects using plain SQL queries */
   implicit def GetResultUserRow(implicit e0: GR[Long], e1: GR[String], e2: GR[Double]): GR[UserRow] = GR{
     prs => import prs._
-    UserRow.tupled((<<[Long], <<[String], <<[String], <<[String], <<[String], <<[String], <<[String], <<[String], <<[String], <<[String], <<[String], <<[Long], <<[Long], <<[Double], <<[Double]))
+    UserRow.tupled((<<[Long], <<[String], <<[String], <<[String], <<[String], <<[String], <<[String], <<[String], <<[String], <<[String], <<[String], <<[Long], <<[Long], <<[Double], <<[Double], <<[String]))
   }
   /** Table description of table user. Objects of this class serve as prototypes for rows in queries. */
   class User(_tableTag: Tag) extends Table[UserRow](_tableTag, "user") {
-    def * = (id, loginname, name, password, token, phone, email, sex, birthday, pic, imtoken, createtime, updatetime, locationx, locationy) <> (UserRow.tupled, UserRow.unapply)
+    def * = (id, loginname, name, password, token, phone, email, sex, birthday, pic, imtoken, createtime, updatetime, locationx, locationy, imuserid) <> (UserRow.tupled, UserRow.unapply)
     /** Maps whole row to an option. Useful for outer joins. */
-    def ? = (Rep.Some(id), Rep.Some(loginname), Rep.Some(name), Rep.Some(password), Rep.Some(token), Rep.Some(phone), Rep.Some(email), Rep.Some(sex), Rep.Some(birthday), Rep.Some(pic), Rep.Some(imtoken), Rep.Some(createtime), Rep.Some(updatetime), Rep.Some(locationx), Rep.Some(locationy)).shaped.<>({r=>import r._; _1.map(_=> UserRow.tupled((_1.get, _2.get, _3.get, _4.get, _5.get, _6.get, _7.get, _8.get, _9.get, _10.get, _11.get, _12.get, _13.get, _14.get, _15.get)))}, (_:Any) =>  throw new Exception("Inserting into ? projection not supported."))
+    def ? = (Rep.Some(id), Rep.Some(loginname), Rep.Some(name), Rep.Some(password), Rep.Some(token), Rep.Some(phone), Rep.Some(email), Rep.Some(sex), Rep.Some(birthday), Rep.Some(pic), Rep.Some(imtoken), Rep.Some(createtime), Rep.Some(updatetime), Rep.Some(locationx), Rep.Some(locationy), Rep.Some(imuserid)).shaped.<>({r=>import r._; _1.map(_=> UserRow.tupled((_1.get, _2.get, _3.get, _4.get, _5.get, _6.get, _7.get, _8.get, _9.get, _10.get, _11.get, _12.get, _13.get, _14.get, _15.get, _16.get)))}, (_:Any) =>  throw new Exception("Inserting into ? projection not supported."))
 
     /** Database column id SqlType(BIGINT), AutoInc, PrimaryKey */
     val id: Rep[Long] = column[Long]("id", O.AutoInc, O.PrimaryKey)
@@ -341,6 +377,8 @@ trait Tables {
     val locationx: Rep[Double] = column[Double]("locationX", O.Default(0.0))
     /** Database column locationY SqlType(DOUBLE), Default(0.0) */
     val locationy: Rep[Double] = column[Double]("locationY", O.Default(0.0))
+    /** Database column imUserid SqlType(VARCHAR), Length(255,true), Default() */
+    val imuserid: Rep[String] = column[String]("imUserid", O.Length(255,varying=true), O.Default(""))
   }
   /** Collection-like TableQuery object for table User */
   lazy val User = new TableQuery(tag => new User(tag))
