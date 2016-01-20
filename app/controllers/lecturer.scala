@@ -178,6 +178,14 @@ class lecturer@Inject()(consultantDao:ConsultantDao,trainerDao: TrainerDao,
     val industry=(jsonData \ "industry").as[String]
     consultantDao.getByUserId(userid).flatMap {user=>
       if(user.isDefined) {
+        consultantDao.updateConsult(user.get._1.id,userid, introduce, proField, industry).map{res=>
+          if (res > 0) {
+            Ok(successResult(Json.obj("data" -> res)))
+          } else {
+            Ok(jsonResult(10010, "更新失败！"))
+          }
+        }
+      }else{
         consultantDao.createConsult(userid, introduce, proField, industry).map { res =>
           if (res > 0) {
             Ok(successResult(Json.obj("data" -> res)))
@@ -185,14 +193,6 @@ class lecturer@Inject()(consultantDao:ConsultantDao,trainerDao: TrainerDao,
             Ok(jsonResult(10010, "注册失败！"))
           }
         }
-      }else{
-       consultantDao.updateConsult(userid, introduce, proField, industry).map{res=>
-         if (res > 0) {
-           Ok(successResult(Json.obj("data" -> res)))
-         } else {
-           Ok(jsonResult(10010, "更新失败！"))
-         }
-       }
       }
     }
   }
@@ -204,8 +204,8 @@ class lecturer@Inject()(consultantDao:ConsultantDao,trainerDao: TrainerDao,
     val introduce=(jsonData \ "introduce").as[String]
     val courseInfo=(jsonData \ "courseInfo").as[JsArray].value.map(j =>
                     j.as[JsArray].value.map(i=> i.validate[String].get))
-    consultantDao.getByUserId(userid).flatMap { user =>
-      if(user.isDefined) {
+    trainerDao.getByUserId(userid).flatMap { user =>
+      if(user.isEmpty) {
         trainerDao.createTrainer(userid, introduce).map { res =>
           if (res > 0) {
             courseInfo.map { course =>
@@ -220,7 +220,7 @@ class lecturer@Inject()(consultantDao:ConsultantDao,trainerDao: TrainerDao,
           }
         }
       }else{
-        trainerDao.updateTrainer(userid,introduce).map{res=>
+        trainerDao.updateTrainer(user.get._1.id,userid,introduce).map{res=>
           if(res > 0){
             courseInfo.map { course =>
               val theme = course(0)

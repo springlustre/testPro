@@ -50,8 +50,8 @@ class ConsultantDao @Inject()(protected val dbConfigProvider:DatabaseConfigProvi
   }
 
  /**更新*/
-  def updateConsult(userid:Long,introduce:String,proField:String,industry:String)={
-    db.run(consultant.filter(_.userid===userid).map(t=>(t.introduce,t.profield,t.industry)).update((introduce,
+  def updateConsult(id:Long,userid:Long,introduce:String,proField:String,industry:String)={
+    db.run(consultant.filter(_.id===id).map(t=>(t.introduce,t.profield,t.industry)).update((introduce,
       proField,industry)))
   }
 
