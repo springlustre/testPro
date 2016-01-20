@@ -8,7 +8,7 @@ import play.api.libs.json.{JsArray, Json}
 import play.api.mvc.{Action, Controller}
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
-
+import util.simpleUtil._
 /**
  * Created by 王春泽 on 2015/12/31.
  */
@@ -54,7 +54,11 @@ class lecturer@Inject()(consultantDao:ConsultantDao,trainerDao: TrainerDao,
             val user=res._2
             val conPic=consultantDao.getPicByUserId(user.id).map { seq => seq.headOption }
             conPic.map{pic=>
-              Json.obj("id" -> con.userid, "name" -> user.name, "type" -> "咨询师", "pic" -> con.pic, "content" -> con.introduce)
+              if(pic.isDefined){
+                Json.obj("id" -> con.userid, "name" -> user.name, "type" -> "咨询师", "pic" ->pic.get.url, "content" -> con.introduce)
+              }else{
+                Json.obj("id" -> con.userid, "name" -> user.name, "type" -> "咨询师", "pic" ->user.pic, "content" -> con.introduce)
+              }
             }
           })
 
@@ -63,7 +67,11 @@ class lecturer@Inject()(consultantDao:ConsultantDao,trainerDao: TrainerDao,
             val user=res._2
             val trainPic=consultantDao.getPicByUserId(user.id).map { seq => seq.headOption }
             trainPic.map{pic=>
-              Json.obj("id"->train.userid,"name"->user.name,"type"->"培训师","pic"->train.pic,"content"->train.introduce)
+              if(pic.isDefined) {
+                Json.obj("id" -> train.userid, "name" -> user.name, "type" -> "培训师", "pic" ->pic.get.url, "content" -> train.introduce)
+              }else{
+                Json.obj("id" -> train.userid, "name" -> user.name, "type" -> "培训师", "pic" -> user.pic, "content" -> train.introduce)
+              }
             }
           })
 
@@ -86,32 +94,25 @@ class lecturer@Inject()(consultantDao:ConsultantDao,trainerDao: TrainerDao,
     val locationX=(jsonData \ "locationX").as[String].toDouble
     val locationY=(jsonData \ "locationY").as[String].toDouble
     val distance=(jsonData \ "distance").as[String].toInt
-    consultantDao.getByLocation(locationX,locationY,distance).flatMap{con=>
-      trainerDao.getByLocation(locationX,locationY,distance).flatMap{train=>
-        val consultant=Future.sequence(con.map{res=>
+    consultantDao.getAll.flatMap{con=>
+      trainerDao.getByLocation(locationX,locationY,distance).map{train=>
+        val consultant=con.distinct.map{res=>
           val con=res._1
           val user=res._2
-          val conPic=consultantDao.getPicByUserId(user.id).map { seq => seq.headOption }
-          conPic.map{pic=>
-            Json.obj("id" -> con.userid, "name" -> user.name, "type" -> "咨询师", "pic" -> con.pic, "content" -> con.introduce)
-          }
-        })
+          val distance=getDistatce(user.locationx,user.locationy,locationX,locationY)
+            Json.obj("id" -> con.userid, "name" -> user.name, "type" -> "咨询师",
+              "pic" -> user.pic, "content" -> con.introduce,"distance"->distance)
+        }
 
-        val trainer=Future.sequence(train.map{res=>
+        val trainer=train.distinct.map{res=>
           val train=res._1
           val user=res._2
-          val trainPic=consultantDao.getPicByUserId(user.id).map { seq => seq.headOption }
-          trainPic.map{pic=>
-            Json.obj("id"->train.userid,"name"->user.name,"type"->"培训师","pic"->train.pic,"content"->train.introduce)
-          }
-        })
-
-        for{con<-consultant
-            train<-trainer
-        }yield{
-          val a=con++train
-          Ok(successResult(Json.obj("data"->a)))
+          val distance=getDistatce(user.locationx,user.locationy,locationX,locationY)
+            Json.obj("id"->train.userid,"name"->user.name,"type"->"培训师",
+              "pic"->user.pic,"content"->train.introduce,"distance"->distance)
         }
+        val a=(consultant++trainer).sortBy(t=>(t \ "distance").as[BigDecimal])
+        Ok(successResult(Json.obj("data"->a)))
       }
     }
   }
@@ -175,33 +176,63 @@ class lecturer@Inject()(consultantDao:ConsultantDao,trainerDao: TrainerDao,
     val introduce=(jsonData \ "introduce").as[String]
     val proField=(jsonData \ "profield").as[String]
     val industry=(jsonData \ "industry").as[String]
-    consultantDao.createConsult(userid,introduce,proField,industry).map{res=>
-      if(res>0){
-        Ok(successResult(Json.obj("data"->res)))
+    consultantDao.getByUserId(userid).flatMap {user=>
+      if(user.isDefined) {
+        consultantDao.createConsult(userid, introduce, proField, industry).map { res =>
+          if (res > 0) {
+            Ok(successResult(Json.obj("data" -> res)))
+          } else {
+            Ok(jsonResult(10010, "注册失败！"))
+          }
+        }
       }else{
-        Ok(jsonResult(10010,"注册失败！"))
+       consultantDao.updateConsult(userid, introduce, proField, industry).map{res=>
+         if (res > 0) {
+           Ok(successResult(Json.obj("data" -> res)))
+         } else {
+           Ok(jsonResult(10010, "更新失败！"))
+         }
+       }
       }
     }
   }
 
-  //培训师
+
   def registerTrainer=Action.async{implicit request=>
     val jsonData=Json.parse(request.body.asText.get)
     val userid=(jsonData \ "userid").as[String].toLong
     val introduce=(jsonData \ "introduce").as[String]
     val courseInfo=(jsonData \ "courseInfo").as[JsArray].value.map(j =>
                     j.as[JsArray].value.map(i=> i.validate[String].get))
-    trainerDao.createTrainer(userid,introduce).map{res=>
-      if(res>0){
-        courseInfo.map{course=>
-          val theme=course(0)
-          val target=course(1)
-          val outline=course(2)
-          trainerDao.updateCourse(userid,res,theme,target,outline)
+    consultantDao.getByUserId(userid).flatMap { user =>
+      if(user.isDefined) {
+        trainerDao.createTrainer(userid, introduce).map { res =>
+          if (res > 0) {
+            courseInfo.map { course =>
+              val theme = course(0)
+              val target = course(1)
+              val outline = course(2)
+              trainerDao.updateCourse(userid, res, theme, target, outline)
+            }
+            Ok(success)
+          } else {
+            Ok(jsonResult(10000, "创建失败！"))
+          }
         }
-        Ok(success)
       }else{
-        Ok(jsonResult(10000,"创建失败！"))
+        trainerDao.updateTrainer(userid,introduce).map{res=>
+          if(res > 0){
+            courseInfo.map { course =>
+              val theme = course(0)
+              val target = course(1)
+              val outline = course(2)
+              trainerDao.updateCourse(userid, res, theme, target, outline)
+            }
+            Ok(success)
+          }else{
+            Ok(jsonResult(10000, "创建失败！"))
+          }
+        }
       }
     }
   }

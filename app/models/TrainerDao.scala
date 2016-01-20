@@ -59,7 +59,6 @@ class TrainerDao @Inject()(protected val dbConfigProvider:DatabaseConfigProvider
 
   /**添加更新课程*/
   def updateCourse(userid:Long,trainerId:Long,theme:String,target:String,outline:String)={
-    db.run(course.filter(_.userid===userid).delete)
     db.run(course.map(t=>(t.userid,t.trainerid,t.theme,t.target,t.outline)).returning(
       course.map(_.id))+=(userid,trainerId,theme,target,outline)
       ).mapTo[Long]

@@ -6,6 +6,7 @@ import com.google.inject.Singleton
 import play.api.Logger
 import play.api.db.slick.{HasDatabaseConfigProvider, DatabaseConfigProvider}
 import slick.driver.JdbcProfile
+import util.simpleUtil._
 
 /**
  * Created by 王春泽 on 2015/12/24.
@@ -32,10 +33,10 @@ class ConsultantDao @Inject()(protected val dbConfigProvider:DatabaseConfigProvi
     db.run(consultant.join(user).on(_.userid===_.id).result)
   }
 
+
   /**根据距离获取*/
   def getByLocation(locationX:Double,locationY:Double,distance:Int)={
-    db.run(consultant.join(user).on(_.userid===_.id).filter(t=>
-      ((t._2.locationx-locationX)*(t._2.locationx-locationX)+(t._2.locationy-locationY)*(t._2.locationy-locationY)) < distance*distance.toDouble).result)
+    db.run(consultant.join(user).on(_.userid===_.id).result)
   }
 
   /**根据用户id查询*/
