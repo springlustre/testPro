@@ -14,6 +14,8 @@ POST        /user/register                        @controllers.user.register
 POST        /user/login                           @controllers.user.login
 POST        /user/updateLocation                  @controllers.user.updateLocation
 POST        /user/savePersonInfo                  @controllers.user.savePersonInfo
+POST        /user/getUserByImUserid               @controllers.user.getUserByImUserid
+
 
 POST        /user/updateUserPhoto                 @controllers.user.updateUserPhoto
 POST        /user/getUserPhoto                    @controllers.user.getUserPhoto
@@ -43,6 +45,8 @@ POST        /user/getPic                          @controllers.user.getPic
 POST        /user/acceptLecture                   @controllers.user.acceptLecture
 POST        /user/getCollection                   @controllers.user.getCollection
 
-
+#chat
+POST        /user/insertChat                      @controllers.user.insertChat
+POST        /user/getChatList                     @controllers.user.getChatList
 
 

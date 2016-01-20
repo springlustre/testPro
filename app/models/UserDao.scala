@@ -97,6 +97,7 @@ class UserDao @Inject()(
   }
 
 
+  /**user获取*/
   def getUserById(id: Long) = {
     db.run(user.filter(_.id === id).result.headOption)
   }
@@ -111,6 +112,10 @@ class UserDao @Inject()(
 
   def getUserByLoginname(loginname:String)={
     db.run(user.filter(_.loginname===loginname).result.headOption)
+  }
+
+  def getUserByImUserid(imUserid:String)={
+    db.run(user.filter(_.imuserid===imUserid).result.headOption)
   }
 
 
@@ -153,7 +158,18 @@ class UserDao @Inject()(
 
   /**chat*/
   def insertChat(userid:Long,chatUserid:Long,chatImUserid:String,lastMsg:String,updateTime:Long)={
-    db.run(chat.filter(t=>(t.)))
+    db.run(chat.filter(t=>(t.userid===userid)&&(t.chatUserid===chatUserid)).result.headOption).flatMap{res=>
+      if(res.isDefined){
+        db.run(chat.filter(_.id===res.get.id).map(t=>(t.lastmsg,t.updateTime)).update(lastMsg,updateTime))
+      }else{
+        db.run(chat.map(t=>(t.userid,t.chatUserid,t.chatImUserid,t.lastmsg,t.updateTime)).returning(chat.map(_.id))+=
+          (userid,chatUserid,chatImUserid,lastMsg,updateTime))//.mapTo[Long]
+      }
+    }
+  }
+
+  def getChat(userid:Long)={
+    db.run(chat.filter(_.userid===userid).sortBy(_.updateTime.desc).join(user).on(_.userid===_.id).result)
   }
 
 

@@ -144,6 +144,28 @@ class user @Inject()(
     }
   }
 
+
+  def getUserByImUserid=Action.async{implicit request=>
+    val jsonData=Json.parse(request.body.asText.get)
+    val imUserid=(jsonData \ "imUserid").as[String]
+    userDao.getUserByImUserid(imUserid).map { user =>
+      if(user.isDefined){
+        Ok(successResult(Json.obj("data" -> Json.obj(
+          "userid"->user.get.id,
+          "name"->user.get.name,
+          "pic"->user.get.pic,
+          "imUserid"->user.get.imuserid
+        ))))
+      }else{
+        Ok(jsonResult(10000,"不存在"))
+      }
+    }
+  }
+
+
+
+
+
   /**保存信息*/
   def savePersonInfo=Action.async{implicit request=>
     val jsonData=Json.parse(request.body.asText.get)
@@ -184,6 +206,7 @@ class user @Inject()(
       }
     }
   }
+
   /**register consumer*/
   def registerConsumer=Action.async{implicit request=>
     val jsonData=Json.parse(request.body.asText.get)
@@ -299,7 +322,7 @@ class user @Inject()(
         if(res>0L){
           Ok(successResult(Json.obj("data"->"收藏成功！")))
         }else{
-        Ok(jsonResult(10000,"操作失败！"))
+         Ok(jsonResult(10000,"操作失败！"))
         }
     }
   }
@@ -329,20 +352,45 @@ class user @Inject()(
   /**chat*/
   def insertChat=Action.async{implicit request=>
     val jsonData=Json.parse(request.body.asText.get)
+//    val jsonData=Json.obj("userid"->"15","chatUserid"->"10","chatImUserid"->"test111","lastMsg"->"aaaaa哈哈哈")
     val userid=(jsonData \ "userid").as[String].toLong
     val chatUserid=(jsonData \ "chatUserid").as[String].toLong
     val chatImUserid=(jsonData \ "chatImUserid").as[String]
     val lastMsg=(jsonData \ "lastMsg").as[String]
     val updateTime=System.currentTimeMillis()
-
+    userDao.insertChat(userid,chatUserid,chatImUserid,lastMsg,updateTime).map{
+      case res:Int =>
+        if(res>0) Ok(successResult(Json.obj("data"->"更新成功")))
+        else Ok(jsonResult(10000,"操作失败！"))
+      case res:Long =>
+        if(res>0L){
+          Ok(successResult(Json.obj("data"->"添加成功！")))
+        }else{
+          Ok(jsonResult(10000,"操作失败！"))
+        }
+    }
   }
 
-  //getChat TODO
+  def getChatList=Action.async{implicit request=>
+    val jsonData=Json.parse(request.body.asText.get)
+    val userid=(jsonData \ "userid").as[String].toLong
+    userDao.getChat(userid).map{seq=>
+      val data=seq.map{res=>
+        Json.obj(
+        "chatUserid"->res._1.chatUserid,
+        "chatImUsrid"->res._1.chatImUserid,
+        "lastMsg"->res._1.lastmsg,
+        "userName"->res._2.name,
+        "pic"->res._2.pic
+        )
+      }
+      Ok(successResult(Json.obj("data"->data)))
+    }
+  }
 
-  //根据imUserid获得user TODO
+  
 
 
-  //
 
 
 
