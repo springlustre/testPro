@@ -169,7 +169,7 @@ class UserDao @Inject()(
   }
 
   def getChat(userid:Long)={
-    db.run(chat.filter(_.userid===userid).sortBy(_.updateTime.desc).join(user).on(_.userid===_.id).result)
+    db.run(chat.filter(_.userid===userid).sortBy(_.updateTime.desc).join(user).on(_.chatUserid===_.id).result)
   }
 
 
