@@ -337,7 +337,7 @@ class user @Inject()(
         Json.obj(
         "collectId"->collect._1.collectId,
         "collectType"->collect._1.collectType,
-        "collectName"->collect._1.collectName,
+        "collectName"->collect._2.name,
         "imUserid"->collect._2.imuserid,
         "pic"->collect._2.pic
         )

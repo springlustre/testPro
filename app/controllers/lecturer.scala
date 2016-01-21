@@ -48,39 +48,23 @@ class lecturer@Inject()(consultantDao:ConsultantDao,trainerDao: TrainerDao,
   def getAllLecturer=Action.async{implicit request=>
 //    println("getAllLecturer-------")
       consultantDao.getAll.flatMap{con=>
-        trainerDao.getAll.flatMap{train=>
-          val consultant=Future.sequence(con.map{res=>
+        trainerDao.getAll.map{train=>
+          val consultant=con.map{res=>
             val con=res._1
             val user=res._2
-            val conPic=consultantDao.getPicByUserId(user.id).map { seq => seq.headOption }
-            conPic.map{pic=>
-              if(pic.isDefined){
-                Json.obj("id" -> con.userid, "name" -> user.name, "type" -> "咨询师", "pic" ->pic.get.url, "content" -> con.introduce)
-              }else{
-                Json.obj("id" -> con.userid, "name" -> user.name, "type" -> "咨询师", "pic" ->user.pic, "content" -> con.introduce)
-              }
-            }
-          })
+//            val conPic=consultantDao.getPicByUserId(user.id).map { seq => seq.headOption }
+         Json.obj("id" -> con.userid, "name" -> user.name, "type" -> "咨询师", "pic" ->user.pic,
+           "content" -> con.introduce,"imUserid"->user.imuserid)
+          }
 
-          val trainer=Future.sequence(train.map{res=>
+          val trainer=train.map{res=>
             val train=res._1
             val user=res._2
-            val trainPic=consultantDao.getPicByUserId(user.id).map { seq => seq.headOption }
-            trainPic.map{pic=>
-              if(pic.isDefined) {
-                Json.obj("id" -> train.userid, "name" -> user.name, "type" -> "培训师", "pic" ->pic.get.url, "content" -> train.introduce)
-              }else{
-                Json.obj("id" -> train.userid, "name" -> user.name, "type" -> "培训师", "pic" -> user.pic, "content" -> train.introduce)
-              }
-            }
-          })
-
-          for{con<-consultant
-            train<-trainer
-          }yield{
-            val a=con++train
-            Ok(successResult(Json.obj("data"->a)))
+            Json.obj("id" -> train.userid, "name" -> user.name, "type" -> "培训师", "pic" ->user.pic,
+              "content" -> train.introduce,"imUserid"->user.imuserid)
           }
+            val a=consultant++trainer
+            Ok(successResult(Json.obj("data"->a)))
         }
       }
 
