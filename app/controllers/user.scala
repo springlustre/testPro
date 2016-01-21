@@ -352,9 +352,10 @@ class user @Inject()(
   /**chat*/
   def insertChat=Action.async{implicit request=>
     val jsonData=Json.parse(request.body.asText.get)
+//    println(jsonData)
 //    val jsonData=Json.obj("userid"->"15","chatUserid"->"10","chatImUserid"->"test111","lastMsg"->"aaaaa哈哈哈")
     val userid=(jsonData \ "userid").as[String].toLong
-    val chatUserid=(jsonData \ "chatUserid").as[String].toLong
+    val chatUserid=(jsonData \ "chatUserid").as[Int].toLong
     val chatImUserid=(jsonData \ "chatImUserid").as[String]
     val lastMsg=(jsonData \ "lastMsg").as[String]
     val updateTime=System.currentTimeMillis()
