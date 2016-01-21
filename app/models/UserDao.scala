@@ -43,9 +43,9 @@ class UserDao @Inject()(
 
   //
   /**创建*/
-  def registeUser(loginname:String,password:String,phone:String,token:String,imToken:String,createTime:Long)={
-    db.run(user.map(m=>(m.loginname,m.password,m.phone,m.token,m.imtoken,m.createtime)).returning(user.map(_.id))+=
-      (loginname,password,phone,token,imToken,createTime)).mapTo[Long]
+  def registeUser(loginname:String,password:String,phone:String,token:String,imToken:String,createTime:Long,imUserid:String)={
+    db.run(user.map(m=>(m.loginname,m.password,m.phone,m.token,m.imtoken,m.createtime,m.imuserid)).returning(user.map(_.id))+=
+      (loginname,password,phone,token,imToken,createTime,imUserid)).mapTo[Long]
   }
 
   def login(loginname:String,password:String)={

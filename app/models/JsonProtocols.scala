@@ -50,7 +50,8 @@ trait JsonProtocols extends BaseJsonProtocols{
         "createTime"->obj.createtime,
         "updateTime"->obj.updatetime,
         "locationX"->obj.locationx,
-        "locationY"->obj.locationy
+        "locationY"->obj.locationy,
+        "imUserid"->obj.imuserid
       )
     }
   }

@@ -45,8 +45,9 @@ class user @Inject()(
     val token=(jsonData \ "token").asOpt[String]
     val imToken=(jsonData \ "imToken").asOpt[String]
     val phone=(jsonData \ "phone").as[String]
+    val imUserid=(jsonData \ "imUserid").as[String]
     val createTime= System.currentTimeMillis()
-    userDao.registeUser(loginname,password,phone,token.getOrElse(""),imToken.getOrElse(""),createTime).map{res=>
+    userDao.registeUser(loginname,password,phone,token.getOrElse(""),imToken.getOrElse(""),createTime,imUserid).map{res=>
       if(res>0){
         Ok(successResult(Json.obj("id"->res)))
       }
