@@ -24,7 +24,7 @@ POST        /user/getUserPhoto                    @controllers.user.getUserPhoto
 GET         /lecturer/getAll                      @controllers.lecturer.getAllLecturer
 POST        /lecturer/getLecturerInfo             @controllers.lecturer.getLecturerInfo
 
-GET         /lecture/getLectureList               @controllers.lecturer.getLectureList
+POST        /lecture/getLectureList               @controllers.lecturer.getLectureList
 
 #GET        /user/updateLoginInfo        @controllers.user.updateLoginInfo
 #GET        /user/modifyUserInfo         @controllers.user.modifyUserInfo

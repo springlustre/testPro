@@ -72,20 +72,21 @@ class lecturer@Inject()(consultantDao:ConsultantDao,trainerDao: TrainerDao,
 
   /**列表*/
   def getLectureList=Action.async{implicit request=>
-   // val jsonData=Json.parse(request.body.asText.get)
-    val jsonData=Json.obj("userid"->"15","locationX"->"39.982259","locationY"->"116.356217","distance"->"10")
+    val jsonData=Json.parse(request.body.asText.get)
+//    val jsonData=Json.obj("userid"->"15","locationX"->"39.982259","locationY"->"116.356217","distance"->"10")
     val userid=(jsonData \ "userid").as[String].toLong
-    val locationX=(jsonData \ "locationX").as[String].toDouble
-    val locationY=(jsonData \ "locationY").as[String].toDouble
-    val distance=(jsonData \ "distance").as[String].toInt
+    val locationX=(jsonData \ "locationX").as[Double].toDouble
+    val locationY=(jsonData \ "locationY").as[Double].toDouble
+//    val distance=(jsonData \ "distance").as[String].toInt
     consultantDao.getAll.flatMap{con=>
-      trainerDao.getByLocation(locationX,locationY,distance).map{train=>
+      trainerDao.getAll.map{train=>
         val consultant=con.distinct.map{res=>
           val con=res._1
           val user=res._2
           val distance=getDistatce(user.locationx,user.locationy,locationX,locationY)
             Json.obj("id" -> con.userid, "name" -> user.name, "type" -> "咨询师",
-              "pic" -> user.pic, "content" -> con.introduce,"distance"->distance)
+              "pic" -> user.pic, "content" -> con.introduce,"distance"->distance,
+              "locationX"->user.locationx,"locationY"->user.locationy)
         }
 
         val trainer=train.distinct.map{res=>
@@ -93,7 +94,8 @@ class lecturer@Inject()(consultantDao:ConsultantDao,trainerDao: TrainerDao,
           val user=res._2
           val distance=getDistatce(user.locationx,user.locationy,locationX,locationY)
             Json.obj("id"->train.userid,"name"->user.name,"type"->"培训师",
-              "pic"->user.pic,"content"->train.introduce,"distance"->distance)
+              "pic"->user.pic,"content"->train.introduce,"distance"->distance,
+              "locationX"->user.locationx,"locationY"->user.locationy)
         }
         val a=(consultant++trainer).sortBy(t=>(t \ "distance").as[BigDecimal])
         Ok(successResult(Json.obj("data"->a)))
