@@ -73,10 +73,12 @@ class lecturer@Inject()(consultantDao:ConsultantDao,trainerDao: TrainerDao,
   /**列表*/
   def getLectureList=Action.async{implicit request=>
     val jsonData=Json.parse(request.body.asText.get)
+//    println(jsonData)
+//    Future.successful(Ok(success))
 //    val jsonData=Json.obj("userid"->"15","locationX"->"39.982259","locationY"->"116.356217","distance"->"10")
     val userid=(jsonData \ "userid").as[String].toLong
-    val locationX=(jsonData \ "locationX").as[Double].toDouble
-    val locationY=(jsonData \ "locationY").as[Double].toDouble
+    val locationX=(jsonData \ "locationX").as[String].toDouble
+    val locationY=(jsonData \ "locationY").as[String].toDouble
 //    val distance=(jsonData \ "distance").as[String].toInt
     consultantDao.getAll.flatMap{con=>
       trainerDao.getAll.map{train=>
