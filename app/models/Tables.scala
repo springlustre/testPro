@@ -14,7 +14,7 @@ trait Tables {
   import slick.jdbc.{GetResult => GR}
 
   /** DDL for all tables. Call .create to execute. */
-  lazy val schema = Array(Chat.schema, Collection.schema, Consultant.schema, Consumer.schema, Course.schema, History.schema, Pic.schema, Picture.schema, Trainer.schema, User.schema).reduceLeft(_ ++ _)
+  lazy val schema = Array(Chat.schema, Collection.schema, Consultant.schema, Consumer.schema, Course.schema, History.schema, Label.schema, Pic.schema, Picture.schema, Trainer.schema, User.schema).reduceLeft(_ ++ _)
   @deprecated("Use .schema instead of .ddl", "3.0")
   def ddl = schema
 
@@ -230,6 +230,34 @@ trait Tables {
   }
   /** Collection-like TableQuery object for table History */
   lazy val History = new TableQuery(tag => new History(tag))
+
+  /** Entity class storing rows of table Label
+   *  @param id Database column id SqlType(BIGINT), AutoInc, PrimaryKey
+   *  @param label Database column label SqlType(VARCHAR), Length(30,true)
+   *  @param `type` Database column type SqlType(INT) */
+  case class LabelRow(id: Long, label: String, `type`: Int)
+  /** GetResult implicit for fetching LabelRow objects using plain SQL queries */
+  implicit def GetResultLabelRow(implicit e0: GR[Long], e1: GR[String], e2: GR[Int]): GR[LabelRow] = GR{
+    prs => import prs._
+    LabelRow.tupled((<<[Long], <<[String], <<[Int]))
+  }
+  /** Table description of table label. Objects of this class serve as prototypes for rows in queries.
+   *  NOTE: The following names collided with Scala keywords and were escaped: type */
+  class Label(_tableTag: Tag) extends Table[LabelRow](_tableTag, "label") {
+    def * = (id, label, `type`) <> (LabelRow.tupled, LabelRow.unapply)
+    /** Maps whole row to an option. Useful for outer joins. */
+    def ? = (Rep.Some(id), Rep.Some(label), Rep.Some(`type`)).shaped.<>({r=>import r._; _1.map(_=> LabelRow.tupled((_1.get, _2.get, _3.get)))}, (_:Any) =>  throw new Exception("Inserting into ? projection not supported."))
+
+    /** Database column id SqlType(BIGINT), AutoInc, PrimaryKey */
+    val id: Rep[Long] = column[Long]("id", O.AutoInc, O.PrimaryKey)
+    /** Database column label SqlType(VARCHAR), Length(30,true) */
+    val label: Rep[String] = column[String]("label", O.Length(30,varying=true))
+    /** Database column type SqlType(INT)
+     *  NOTE: The name was escaped because it collided with a Scala keyword. */
+    val `type`: Rep[Int] = column[Int]("type")
+  }
+  /** Collection-like TableQuery object for table Label */
+  lazy val Label = new TableQuery(tag => new Label(tag))
 
   /** Entity class storing rows of table Pic
    *  @param id Database column id SqlType(BIGINT), AutoInc, PrimaryKey

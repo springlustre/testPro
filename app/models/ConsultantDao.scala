@@ -21,6 +21,7 @@ class ConsultantDao @Inject()(protected val dbConfigProvider:DatabaseConfigProvi
   private[this] val user=Tables.User
   private[this] val pic=Tables.Pic
   private[this] val log = Logger(this.getClass)
+  private[this] val label=Tables.Label
 
   /**创建*/
   def createConsult(userid:Long,introduce:String,proField:String,industry:String)={
@@ -53,6 +54,15 @@ class ConsultantDao @Inject()(protected val dbConfigProvider:DatabaseConfigProvi
   def updateConsult(id:Long,userid:Long,introduce:String,proField:String,industry:String)={
     db.run(consultant.filter(_.id===id).map(t=>(t.introduce,t.profield,t.industry)).update((introduce,
       proField,industry)))
+  }
+
+
+  def getLabelPro={
+    db.run(label.filter(_.`type`===1).result)
+  }
+
+  def getLabelIndustry={
+    db.run(label.filter(_.`type`===2).result)
   }
 
 

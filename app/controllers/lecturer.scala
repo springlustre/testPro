@@ -2,7 +2,7 @@ package controllers
 
 import javax.inject.{Singleton, Inject}
 
-import models.{UserDao, TrainerDao, JsonProtocols, ConsultantDao}
+import models._
 import org.slf4j.LoggerFactory
 import play.api.libs.json.{JsArray, Json}
 import play.api.mvc.{Action, Controller}
@@ -222,6 +222,29 @@ class lecturer@Inject()(consultantDao:ConsultantDao,trainerDao: TrainerDao,
           }
         }
       }
+    }
+  }
+
+
+  /**获得标签 专业领域
+    * */
+  def getLabelPro=Action.async{implicit request=>
+    consultantDao.getLabelPro.map{res=>
+      val data=res.map{label=>
+        label.label
+      }
+      Ok(successResult(Json.obj("data"->data)))
+    }
+  }
+
+  /**获得标签 熟悉产业
+    * */
+  def getLabelIndustry=Action.async{implicit request=>
+    consultantDao.getLabelIndustry.map{res=>
+      val data=res.map{label=>
+        label.label
+      }
+      Ok(successResult(Json.obj("data"->data)))
     }
   }
 
