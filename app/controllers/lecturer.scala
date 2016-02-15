@@ -70,7 +70,7 @@ class lecturer@Inject()(consultantDao:ConsultantDao,trainerDao: TrainerDao,
 
   }
 
-  /**列表*/
+  /**获取列表*/
   def getLectureList=Action.async{implicit request=>
     val jsonData=Json.parse(request.body.asText.get)
 //    println(jsonData)
@@ -88,7 +88,7 @@ class lecturer@Inject()(consultantDao:ConsultantDao,trainerDao: TrainerDao,
           val distance=getDistatce(user.locationx,user.locationy,locationX,locationY)
             Json.obj("id" -> con.userid, "name" -> user.name, "type" -> "咨询师",
               "pic" -> user.pic, "content" -> con.introduce,"distance"->distance,
-              "locationX"->user.locationx,"locationY"->user.locationy)
+              "locationX"->user.locationx,"locationY"->user.locationy,"imUserid"->user.imuserid)
         }
 
         val trainer=train.distinct.map{res=>
@@ -97,7 +97,7 @@ class lecturer@Inject()(consultantDao:ConsultantDao,trainerDao: TrainerDao,
           val distance=getDistatce(user.locationx,user.locationy,locationX,locationY)
             Json.obj("id"->train.userid,"name"->user.name,"type"->"培训师",
               "pic"->user.pic,"content"->train.introduce,"distance"->distance,
-              "locationX"->user.locationx,"locationY"->user.locationy)
+              "locationX"->user.locationx,"locationY"->user.locationy,"imUserid"->user.imuserid)
         }
         val a=(consultant++trainer).sortBy(t=>(t \ "distance").as[BigDecimal])
         Ok(successResult(Json.obj("data"->a)))
