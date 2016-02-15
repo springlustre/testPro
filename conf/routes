@@ -50,4 +50,5 @@ POST        /user/getCollection                   @controllers.user.getCollectio
 POST        /user/insertChat                      @controllers.user.insertChat
 POST        /user/getChatList                     @controllers.user.getChatList
 
-
+#price
+POST        /user/getPrice                        @controllers.lecturer.getPrice

@@ -26,6 +26,7 @@ class UserDao @Inject()(
   private[this] val pic=Tables.Pic
   private[this] val collect=Tables.Collection
   private[this] val chat=Tables.Chat
+  private[this] val price=Tables.Price
   private val idCacheKey = "cache.user.id."
   private val emailCacheKey = "cache.user.email."
 
@@ -173,7 +174,10 @@ class UserDao @Inject()(
   }
 
 
-
+  /*price*/
+  def getPrice(id:Long)={
+    db.run(price.filter(_.userid===id).result.headOption)
+  }
 
 
 

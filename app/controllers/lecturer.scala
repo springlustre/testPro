@@ -250,6 +250,25 @@ class lecturer@Inject()(consultantDao:ConsultantDao,trainerDao: TrainerDao,
 
 
 
+  /*价格
+  * */
+  def getPrice=Action.async{implicit request=>
+    val jsonData=Json.parse(request.body.asText.get)
+    val userid=0l//(jsonData \ "userid").as[String].toLong
+    userDao.getPrice(userid).map{res=>
+      if(res.isDefined){
+        val price=Json.obj("must1"->res.get.must1,"must2"->res.get.must2,
+          "must3"->res.get.must3,"option1"->res.get.option1,"option2"->res.get.option2,
+          "option3"->res.get.option3,"option4"->res.get.option4,"option5"->res.get.option5,
+          "option6"->res.get.option6,"option7"->res.get.option7)
+        Ok(successResult(Json.obj("data"->price)))
+      }else{
+        Ok(jsonResult(10000, "获取失败！"))
+      }
+    }
+  }
+
+
 
 
 

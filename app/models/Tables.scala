@@ -14,7 +14,7 @@ trait Tables {
   import slick.jdbc.{GetResult => GR}
 
   /** DDL for all tables. Call .create to execute. */
-  lazy val schema = Array(Chat.schema, Collection.schema, Consultant.schema, Consumer.schema, Course.schema, History.schema, Label.schema, Pic.schema, Picture.schema, Trainer.schema, User.schema).reduceLeft(_ ++ _)
+  lazy val schema = Array(Chat.schema, Collection.schema, Consultant.schema, Consumer.schema, Course.schema, History.schema, Label.schema, Pic.schema, Picture.schema, Price.schema, Trainer.schema, User.schema).reduceLeft(_ ++ _)
   @deprecated("Use .schema instead of .ddl", "3.0")
   def ddl = schema
 
@@ -316,6 +316,59 @@ trait Tables {
   }
   /** Collection-like TableQuery object for table Picture */
   lazy val Picture = new TableQuery(tag => new Picture(tag))
+
+  /** Entity class storing rows of table Price
+   *  @param id Database column id SqlType(BIGINT), AutoInc, PrimaryKey
+   *  @param userid Database column userid SqlType(BIGINT)
+   *  @param must1 Database column must1 SqlType(INT)
+   *  @param must2 Database column must2 SqlType(INT)
+   *  @param must3 Database column must3 SqlType(INT)
+   *  @param option1 Database column option1 SqlType(INT)
+   *  @param option2 Database column option2 SqlType(INT)
+   *  @param option3 Database column option3 SqlType(INT)
+   *  @param option4 Database column option4 SqlType(INT)
+   *  @param option5 Database column option5 SqlType(INT)
+   *  @param option6 Database column option6 SqlType(INT)
+   *  @param option7 Database column option7 SqlType(INT) */
+  case class PriceRow(id: Long, userid: Long, must1: Int, must2: Int, must3: Int, option1: Int, option2: Int, option3: Int, option4: Int, option5: Int, option6: Int, option7: Int)
+  /** GetResult implicit for fetching PriceRow objects using plain SQL queries */
+  implicit def GetResultPriceRow(implicit e0: GR[Long], e1: GR[Int]): GR[PriceRow] = GR{
+    prs => import prs._
+    PriceRow.tupled((<<[Long], <<[Long], <<[Int], <<[Int], <<[Int], <<[Int], <<[Int], <<[Int], <<[Int], <<[Int], <<[Int], <<[Int]))
+  }
+  /** Table description of table price. Objects of this class serve as prototypes for rows in queries. */
+  class Price(_tableTag: Tag) extends Table[PriceRow](_tableTag, "price") {
+    def * = (id, userid, must1, must2, must3, option1, option2, option3, option4, option5, option6, option7) <> (PriceRow.tupled, PriceRow.unapply)
+    /** Maps whole row to an option. Useful for outer joins. */
+    def ? = (Rep.Some(id), Rep.Some(userid), Rep.Some(must1), Rep.Some(must2), Rep.Some(must3), Rep.Some(option1), Rep.Some(option2), Rep.Some(option3), Rep.Some(option4), Rep.Some(option5), Rep.Some(option6), Rep.Some(option7)).shaped.<>({r=>import r._; _1.map(_=> PriceRow.tupled((_1.get, _2.get, _3.get, _4.get, _5.get, _6.get, _7.get, _8.get, _9.get, _10.get, _11.get, _12.get)))}, (_:Any) =>  throw new Exception("Inserting into ? projection not supported."))
+
+    /** Database column id SqlType(BIGINT), AutoInc, PrimaryKey */
+    val id: Rep[Long] = column[Long]("id", O.AutoInc, O.PrimaryKey)
+    /** Database column userid SqlType(BIGINT) */
+    val userid: Rep[Long] = column[Long]("userid")
+    /** Database column must1 SqlType(INT) */
+    val must1: Rep[Int] = column[Int]("must1")
+    /** Database column must2 SqlType(INT) */
+    val must2: Rep[Int] = column[Int]("must2")
+    /** Database column must3 SqlType(INT) */
+    val must3: Rep[Int] = column[Int]("must3")
+    /** Database column option1 SqlType(INT) */
+    val option1: Rep[Int] = column[Int]("option1")
+    /** Database column option2 SqlType(INT) */
+    val option2: Rep[Int] = column[Int]("option2")
+    /** Database column option3 SqlType(INT) */
+    val option3: Rep[Int] = column[Int]("option3")
+    /** Database column option4 SqlType(INT) */
+    val option4: Rep[Int] = column[Int]("option4")
+    /** Database column option5 SqlType(INT) */
+    val option5: Rep[Int] = column[Int]("option5")
+    /** Database column option6 SqlType(INT) */
+    val option6: Rep[Int] = column[Int]("option6")
+    /** Database column option7 SqlType(INT) */
+    val option7: Rep[Int] = column[Int]("option7")
+  }
+  /** Collection-like TableQuery object for table Price */
+  lazy val Price = new TableQuery(tag => new Price(tag))
 
   /** Entity class storing rows of table Trainer
    *  @param id Database column id SqlType(BIGINT), AutoInc, PrimaryKey
