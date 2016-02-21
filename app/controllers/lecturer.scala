@@ -113,7 +113,6 @@ class lecturer@Inject()(consultantDao:ConsultantDao,trainerDao: TrainerDao,
    val jsonData=Json.parse(request.body.asText.get)
    val userid=(jsonData \ "userid").as[String].toLong
    val userType=(jsonData \ "type").as[String]
-//   println("=============getInfo"+userid+userType)
    consultantDao.getPicByUserId(userid).flatMap { seq =>
      val picUrl=seq.map{pic=> pic.url}
 
