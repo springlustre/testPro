@@ -3,3 +3,5 @@ This is your new Play application
 
 This file will be packaged with your application, when using `activator dist`.
 
+自己做的一个app的简单的后台接口，scala+PlayFrameWork+slick ,主要就是对数据库的增删改查操作，比如登陆 注册 获取用户信息等等。
+PlayFrameWork 2.4 的版本，DAO层采用Slick， 用的3.1的版本，scala 2.11.6
